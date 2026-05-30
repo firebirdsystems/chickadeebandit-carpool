@@ -38,6 +38,14 @@ async function db(sql, params = []) {
 
 Schema is managed by hub migrations in `migrations/001_init.sql` — do not run `CREATE TABLE` at runtime.
 
+Every table that stores per-household data **must** declare `household_id` as `UUID`, not `TEXT`:
+
+```sql
+household_id UUID NOT NULL DEFAULT current_setting('app.household_id', true)::uuid,
+```
+
+Using `TEXT` causes a Postgres type error (`operator does not exist: text = uuid`) when the hub queries app storage usage, and breaks row-level security policies that compare the column as a uuid.
+
 ## hub-sdk.js
 
 Import shared utilities from `/hub-sdk.js`:
@@ -431,3 +439,32 @@ Every app sets `<base href="/run/{app-id}/">` in `<head>` so relative asset path
 ## Demo mode
 
 When `DB` and `CONTEXT` are empty strings (local development or demo), the app should work with hardcoded demo data. Never crash or show an error when these are missing — show sample data instead.
+
+## Security constraints
+
+### Migration SQL
+
+Migrations run on the shared hub database. The hub validates and rejects any migration that contains:
+
+- `CREATE FUNCTION` / `CREATE PROCEDURE` / `CREATE TRIGGER` — not allowed; the hub manages all database functions
+- `SECURITY DEFINER` — not allowed; privilege escalation risk
+- `GRANT` / `REVOKE` — not allowed; the hub manages role permissions
+- `CREATE POLICY` / `DROP POLICY` — not allowed; the hub applies row-level security after migrations
+- `CREATE EXTENSION` / `CREATE ROLE` / `ALTER ROLE` / `CREATE SCHEMA` — system-level, not allowed
+- `CREATE FOREIGN` / `CREATE SERVER` — not allowed; foreign data wrappers are a data exfiltration risk
+- `COPY` — not allowed; file system access
+- `public.` qualified names (e.g. `public.family_members`) — not allowed; use unqualified names instead
+- `SET ROLE` / `SET SESSION AUTHORIZATION` — not allowed
+
+Migrations must be additive only (`CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`). The hub enforces RLS on every table after migrations run — do not attempt to manage it yourself.
+
+### App JavaScript
+
+- Always use `esc()` from `/hub-sdk.js` when injecting any user-provided string into `innerHTML`. Never use raw string interpolation with user data in HTML templates.
+- Never construct SQL strings from user input — always use parameterized queries via the `db()` helper with the `params` array.
+- The `DB` endpoint only runs queries against your app's own schema. You cannot query other apps' tables or hub tables — this is enforced at the database level.
+- Do not attempt to read or write `window.__CONTEXT_URL`, `window.__DB_URL`, or other hub globals from another origin — the iframe sandbox blocks it.
+
+### CDN whitelist
+
+`cdn_whitelist` entries in the manifest must be `https://` origins only (e.g. `"https://cdn.jsdelivr.net"`). No paths, no wildcards, no `http://`. The hub rejects manifests with invalid entries and strips any that bypass validation at CSP-build time.
