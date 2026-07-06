@@ -1,43 +1,48 @@
-CREATE TABLE IF NOT EXISTS app_potluck__events (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  date TEXT NOT NULL,
-  location TEXT DEFAULT '',
-  notes TEXT DEFAULT '',
-  created_by_id TEXT NOT NULL,
-  created_by_name TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  archived INTEGER NOT NULL DEFAULT 0
+-- A recurring carpool rotation (e.g. "Soccer Practice", "Morning School Run").
+-- Everyone reads the schedule; only adults create and manage rotations.
+CREATE TABLE IF NOT EXISTS app_carpool__carpools (
+  id              TEXT PRIMARY KEY,
+  name            TEXT NOT NULL,
+  description     TEXT NOT NULL DEFAULT '',
+  location        TEXT NOT NULL DEFAULT '',
+  pickup_time     TEXT NOT NULL DEFAULT '',        -- "HH:MM" local
+  weekdays        TEXT NOT NULL DEFAULT '',         -- CSV of 0-6 (Sun=0), e.g. "1,3,5"
+  driver_order    TEXT NOT NULL DEFAULT '[]',       -- JSON array of member ids (rotation order)
+  created_by      TEXT NOT NULL,
+  created_by_name TEXT NOT NULL DEFAULT '',
+  created_at      TEXT NOT NULL,
+  archived        INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS app_potluck__slots (
-  id TEXT PRIMARY KEY,
-  event_id TEXT NOT NULL,
-  name TEXT NOT NULL,
-  capacity INTEGER NOT NULL DEFAULT 1 CHECK (capacity > 0),
-  sort_order INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL,
-  FOREIGN KEY (event_id) REFERENCES app_potluck__events(id) ON DELETE CASCADE
+-- One concrete driving day. Generated from the rotation, editable by adults.
+CREATE TABLE IF NOT EXISTS app_carpool__assignments (
+  id          TEXT PRIMARY KEY,
+  carpool_id  TEXT NOT NULL,
+  date        TEXT NOT NULL,
+  driver_id   TEXT NOT NULL DEFAULT '',
+  note        TEXT NOT NULL DEFAULT '',
+  status      TEXT NOT NULL DEFAULT 'scheduled',    -- scheduled | done | skipped
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL,
+  UNIQUE (carpool_id, date),
+  FOREIGN KEY (carpool_id) REFERENCES app_carpool__carpools(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS app_potluck__claims (
-  id TEXT PRIMARY KEY,
-  event_id TEXT NOT NULL,
-  slot_id TEXT NOT NULL,
-  member_id TEXT NOT NULL,
-  member_name TEXT NOT NULL,
-  note TEXT DEFAULT '',
-  claimed_at TEXT NOT NULL,
-  FOREIGN KEY (event_id) REFERENCES app_potluck__events(id) ON DELETE CASCADE,
-  FOREIGN KEY (slot_id) REFERENCES app_potluck__slots(id) ON DELETE CASCADE,
-  UNIQUE (slot_id, member_id)
+-- A driver asking to be covered on a given day; another adult accepts it.
+CREATE TABLE IF NOT EXISTS app_carpool__swap_requests (
+  id            TEXT PRIMARY KEY,
+  carpool_id    TEXT NOT NULL,
+  assignment_id TEXT NOT NULL,
+  requested_by  TEXT NOT NULL,
+  reason        TEXT NOT NULL DEFAULT '',
+  status        TEXT NOT NULL DEFAULT 'open',        -- open | accepted | cancelled
+  resolved_by   TEXT NOT NULL DEFAULT '',
+  created_at    TEXT NOT NULL,
+  updated_at    TEXT NOT NULL,
+  FOREIGN KEY (assignment_id) REFERENCES app_carpool__assignments(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS app_potluck__events_date_idx
-  ON app_potluck__events(date, archived);
-
-CREATE INDEX IF NOT EXISTS app_potluck__slots_event_idx
-  ON app_potluck__slots(event_id, sort_order);
-
-CREATE INDEX IF NOT EXISTS app_potluck__claims_slot_idx
-  ON app_potluck__claims(slot_id, claimed_at);
+CREATE INDEX IF NOT EXISTS app_carpool__carpools_arch_idx ON app_carpool__carpools(archived);
+CREATE INDEX IF NOT EXISTS app_carpool__assignments_cp_idx ON app_carpool__assignments(carpool_id, date);
+CREATE INDEX IF NOT EXISTS app_carpool__assignments_date_idx ON app_carpool__assignments(date);
+CREATE INDEX IF NOT EXISTS app_carpool__swap_assignment_idx ON app_carpool__swap_requests(assignment_id, status);

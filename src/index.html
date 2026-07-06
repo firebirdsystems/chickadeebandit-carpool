@@ -3,197 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Potluck</title>
+  <title>Carpool Coordinator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: var(--hub-bg, #f9fafb);
-      --surface: var(--hub-surface, #ffffff);
-      --border: var(--hub-border, #e5e7eb);
-      --border-mid: var(--hub-border, #d1d5db);
-      --text: var(--hub-text, #111827);
-      --muted: var(--hub-text-muted, #6b7280);
-      --accent: var(--hub-primary, #111827);
-      --accent-hover: var(--hub-primary-hover, #374151);
-      --accent-fg: var(--hub-primary-fg, #ffffff);
-      --radius: var(--hub-radius, 8px);
-      --green: #047857;
-      --green-soft: #d1fae5;
-      --amber: #b45309;
-      --amber-soft: #fef3c7;
-      --red: #b91c1c;
-      --red-soft: #fee2e2;
-      --blue-soft: #dbeafe;
+      --bg: var(--hub-bg, #f9fafb); --surface: var(--hub-surface, #ffffff);
+      --border: var(--hub-border, #e5e7eb); --border-mid: var(--hub-border, #d1d5db);
+      --text: var(--hub-text, #111827); --muted: var(--hub-text-muted, #6b7280);
+      --accent: var(--hub-primary, #111827); --accent-hover: var(--hub-primary-hover, #374151);
+      --accent-fg: var(--hub-primary-fg, #ffffff); --radius: var(--hub-radius, 8px);
+      --green: #047857; --green-soft: #d1fae5; --amber: #b45309; --amber-soft: #fef3c7;
+      --red: #b91c1c; --red-soft: #fee2e2; --blue-soft: #dbeafe;
       --shadow: 0 1px 3px rgba(15, 23, 42, .07);
     }
-    body {
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
+    body { min-height: 100vh; background: var(--bg); color: var(--text);
       font-family: var(--hub-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-      font-size: var(--hub-font-size, 15px);
-      line-height: 1.5;
-    }
+      font-size: var(--hub-font-size, 15px); line-height: 1.5; }
     .app { max-width: 820px; margin: 0 auto; padding: 16px; }
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    h1 { font-size: 1.35rem; line-height: 1.2; }
-    h2 { font-size: 1rem; margin-bottom: 10px; }
-    .muted { color: var(--muted); }
-    .tiny { font-size: .78rem; }
-    .stack { display: grid; gap: 12px; }
-    .grid { display: grid; gap: 12px; }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-    }
-    .event-card { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
-    .event-card:hover { border-color: var(--border-mid); box-shadow: 0 5px 14px rgba(15, 23, 42, .08); }
-    .event-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .event-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-    .event-title { font-weight: 750; font-size: 1rem; }
-    .event-meta { margin-top: 3px; color: var(--muted); font-size: .82rem; }
-    .progress { height: 8px; overflow: hidden; border-radius: 999px; background: #eef2f7; margin-top: 10px; }
-    .progress > span { display: block; height: 100%; background: var(--green); border-radius: 999px; }
-    .pill {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 24px; padding: 2px 8px; border-radius: 999px;
-      background: #f1f5f9; color: var(--muted); font-size: .74rem; font-weight: 700; white-space: nowrap;
-    }
+    h1 { font-size: 1.35rem; line-height: 1.2; } h2 { font-size: 1rem; margin-bottom: 10px; }
+    .muted { color: var(--muted); } .tiny { font-size: .78rem; }
+    .stack { display: grid; gap: 12px; } .grid { display: grid; gap: 12px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+    .cp-card { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .cp-card:hover { border-color: var(--border-mid); box-shadow: 0 5px 14px rgba(15, 23, 42, .08); }
+    .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .title { font-weight: 750; font-size: 1rem; }
+    .meta { margin-top: 3px; color: var(--muted); font-size: .82rem; }
+    .pill { display: inline-flex; align-items: center; justify-content: center; min-height: 24px; padding: 2px 8px; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: .74rem; font-weight: 700; white-space: nowrap; }
     .pill.good { background: var(--green-soft); color: var(--green); }
     .pill.warn { background: var(--amber-soft); color: var(--amber); }
     .pill.info { background: var(--blue-soft); color: #1d4ed8; }
     .tabs { display: flex; gap: 4px; background: var(--border); padding: 3px; border-radius: 10px; margin-bottom: 14px; }
     .tab { flex: 1; border: 0; border-radius: 8px; background: transparent; color: var(--muted); padding: 7px; font-weight: 700; cursor: pointer; }
     .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-    .section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 10px; margin: 6px 2px 10px;
-    }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 2px 10px; }
     .section-head h2 { margin-bottom: 0; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      border: 1px solid transparent; border-radius: 8px; padding: 8px 12px;
-      font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer;
-      min-height: 38px; background: var(--accent); color: var(--accent-fg);
-    }
-    .btn:hover { background: var(--accent-hover); }
-    .btn:disabled { opacity: .48; cursor: default; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; border-radius: 8px; padding: 8px 12px; font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; min-height: 38px; background: var(--accent); color: var(--accent-fg); }
+    .btn:hover { background: var(--accent-hover); } .btn:disabled { opacity: .48; cursor: default; }
     .btn-ghost { background: transparent; color: var(--text); border-color: var(--border-mid); }
     .btn-ghost:hover { background: #f8fafc; }
     .btn-danger { background: var(--red-soft); color: var(--red); border-color: transparent; }
-    .btn-danger:hover { background: #fecaca; }
-    .btn-quiet-danger {
-      min-height: 28px; padding: 3px 6px; background: transparent; color: var(--muted);
-      border: 0; font-size: .76rem; font-weight: 700;
-    }
+    .btn-quiet-danger { min-height: 28px; padding: 3px 6px; background: transparent; color: var(--muted); border: 0; font-size: .76rem; font-weight: 700; }
     .btn-quiet-danger:hover { background: var(--red-soft); color: var(--red); }
     .btn-sm { min-height: 31px; padding: 5px 9px; font-size: .78rem; }
     .back { margin-bottom: 10px; }
-    .slot {
-      display: grid; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border);
-    }
-    .slot:first-child { border-top: 0; padding-top: 0; }
-    .slot-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .slot-name { font-weight: 750; }
-    .claims { display: flex; flex-wrap: wrap; gap: 6px; }
-    .claim-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #f8fafc; border: 1px solid var(--border);
-      border-radius: 999px; padding: 3px 8px 3px 4px; font-size: .78rem;
-    }
-    .avatar {
-      width: 22px; height: 22px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      color: white; font-size: .72rem; font-weight: 800; background: #0f766e;
-    }
+    .row { display: grid; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .row:first-child { border-top: 0; padding-top: 0; }
+    .row-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .date-badge { font-weight: 750; }
+    .driver { display: inline-flex; align-items: center; gap: 6px; }
+    .avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: .72rem; font-weight: 800; background: #0f766e; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .form { display: grid; gap: 10px; }
     .field { display: grid; gap: 4px; }
     label { font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; }
-    input, textarea {
-      width: 100%; border: 1.5px solid var(--border-mid); border-radius: 8px;
-      padding: 9px 11px; font: inherit; background: var(--surface); color: var(--text);
-    }
-    textarea { min-height: 72px; resize: vertical; }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-    .slot-builder { display: grid; gap: 8px; }
-    .slot-row { display: grid; grid-template-columns: 1fr 74px auto; gap: 8px; align-items: center; }
+    input, textarea, select { width: 100%; border: 1.5px solid var(--border-mid); border-radius: 8px; padding: 9px 11px; font: inherit; background: var(--surface); color: var(--text); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+    select.inline { width: auto; min-width: 150px; padding: 5px 9px; min-height: 31px; font-size: .8rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { border: 1.5px solid var(--border-mid); border-radius: 999px; padding: 5px 11px; background: var(--surface); color: var(--text); font-weight: 700; font-size: .8rem; cursor: pointer; }
+    .chip.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+    .drivers-pick { display: grid; gap: 6px; }
+    .driver-opt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; }
+    .driver-opt input { width: auto; }
     .empty, .loading { color: var(--muted); text-align: center; padding: 32px 16px; }
     .error { background: var(--red-soft); color: var(--red); padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; font-size: .86rem; }
-    .notice { background: var(--amber-soft); color: var(--amber); padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; font-size: .86rem; }
-    @media (min-width: 700px) {
-      .grid.two { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 560px) {
-      .topbar, .event-head, .slot-top { align-items: stretch; flex-direction: column; }
-      .slot-row { grid-template-columns: 1fr; }
-      .actions .btn { flex: 1; }
-    }
+    .notice { background: var(--green-soft); color: var(--green); padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; font-size: .86rem; }
+    @media (min-width: 700px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .topbar, .head { align-items: stretch; flex-direction: column; } }
   </style>
-  <base href="/run/potluck/">
+  <base href="/run/carpool/">
 </head>
 <body>
-<div class="app">
-  <div id="root" class="loading">Loading...</div>
-</div>
+<div class="app"><div id="root" class="loading">Loading…</div></div>
 
 <script type="module">
-import { esc, isAdult, memberColor, initial, hubConfirm } from "/hub-sdk.js";
+import { esc, initial, memberColor, hubConfirm, sendHubNotification, hubAppUrl } from "/hub-sdk.js";
+import {
+  canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
+  buildCalendarEvents, openSwap as _openSwap,
+} from "./logic.js";
 
-const CONTEXT = window.__CONTEXT_URL ?? "";
-const DB = window.__DB_URL ?? "";
-const HUB_MEMBER = window.__CURRENT_MEMBER ?? null;
+const CONTEXT    = window.__CONTEXT_URL    ?? "";
+const DB         = window.__DB_URL         ?? "";
+const STORE_URL  = window.__STORE_URL      ?? "";
+const EVENTS_URL = window.__EVENTS_URL     ?? "/api/events";
+const APP_ID     = window.__APP_ID         ?? "carpool";
+const ME         = window.__CURRENT_MEMBER ?? null;
+
+const HORIZON = 28; // days of schedule generated per rotation extension
+const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 let members = [];
+let memberMap = new Map();
 let currentMember = null;
-let events = [];
-let slots = [];
-let claims = [];
-let selectedEventId = null;
-let view = "upcoming";
+let carpools = [];
+let assignments = [];
+let swaps = [];
+let selectedCarpoolId = null;
+let view = "carpools"; // carpools | mine | create
 let error = "";
 let notice = "";
-let draftSlots = [
-  { name: "Turkey", capacity: 1 },
-  { name: "Sides", capacity: 4 },
-  { name: "Desserts", capacity: 2 },
-];
+let draft = { name: "", location: "", pickup_time: "16:00", weekdays: new Set(), drivers: [] };
 
-function nowIso() { return new Date().toISOString(); }
-function uid(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-function today() { return new Date().toISOString().slice(0, 10); }
-function fmtDate(value) {
-  if (!value) return "";
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" })
-    .format(new Date(`${value}T12:00:00`));
+function canManage() { return _canManage(currentMember); }
+function openSwap(assignmentId) { return _openSwap(swaps, assignmentId); }
+
+const nowIso = () => new Date().toISOString();
+const uid = (p) => `${p}-${crypto.randomUUID()}`;
+const today = () => new Date().toLocaleDateString("en-CA");
+function memberName(id) { return memberMap.get(id)?.name ?? "Unassigned"; }
+function adultMembers() { return members.filter(m => m.role === "adult"); }
+function fmtDay(v) {
+  if (!v) return "";
+  return new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${v}T12:00:00`));
 }
-function memberById(id) { return members.find(m => m.id === id) ?? null; }
-function canCreate() { return isAdult(currentMember); }
-function selectedEvent() { return events.find(e => e.id === selectedEventId) ?? null; }
-function eventSlots(eventId) { return slots.filter(s => s.event_id === eventId).sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name)); }
-function slotClaims(slotId) { return claims.filter(c => c.slot_id === slotId).sort((a, b) => a.claimed_at.localeCompare(b.claimed_at)); }
-function myClaim(slotId) { return claims.find(c => c.slot_id === slotId && c.member_id === currentMember?.id) ?? null; }
-function claimedCount(slotId) { return slotClaims(slotId).length; }
-function eventTotals(eventId) {
-  const ss = eventSlots(eventId);
-  const capacity = ss.reduce((sum, s) => sum + Number(s.capacity || 0), 0);
-  const claimed = ss.reduce((sum, s) => sum + claimedCount(s.id), 0);
-  return { claimed, capacity, pct: capacity ? Math.min(100, Math.round((claimed / capacity) * 100)) : 0 };
-}
+function carpoolById(id) { return carpools.find(c => c.id === id) ?? null; }
+function selectedCarpool() { return carpoolById(selectedCarpoolId); }
+function carpoolAssignments(id) { return assignments.filter(a => a.carpool_id === id).sort((a, b) => a.date.localeCompare(b.date)); }
 
 async function dbq(sql, params = []) {
   if (!DB) return { rows: [] };
-  const res = await fetch(DB, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sql, params }),
-  });
+  const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
   const json = await res.json();
   if (json.error) throw new Error(json.error);
   return json;
+}
+function publish(type, subject_id, payload) {
+  fetch(EVENTS_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source_app_id: APP_ID, type, subject_id, payload }) }).catch(() => {});
 }
 
 async function loadMembers() {
@@ -201,379 +141,426 @@ async function loadMembers() {
     members = [
       { id: "demo-1", name: "Alex", role: "adult" },
       { id: "demo-2", name: "Jordan", role: "adult" },
-      { id: "demo-3", name: "Casey", role: "child" },
+      { id: "demo-3", name: "Sam", role: "adult" },
       { id: "demo-4", name: "Riley", role: "child" },
     ];
   } else {
-    const res = await fetch(`${CONTEXT}?keys=family.members`);
-    members = ((await res.json())["family.members"]) ?? [];
+    try { const res = await fetch(`${CONTEXT}?keys=family.members`); members = ((await res.json())["family.members"]) ?? []; }
+    catch { members = []; }
   }
-  currentMember = HUB_MEMBER ?? members[0] ?? { id: "guest", name: "Guest", role: "adult" };
+  memberMap = new Map(members.map(m => [m.id, m]));
+  currentMember = ME ?? members[0] ?? { id: "guest", name: "Guest", role: "adult" };
 }
 
-async function seedDemo() {
-  if (DB) return;
-  const eventId = "demo-thanksgiving";
-  events = [{
-    id: eventId, title: "Thanksgiving Dinner", date: today(), location: "Home",
-    notes: "Claim what you are bringing so the table balances out.",
-    created_by_id: "demo-1", created_by_name: "Alex", created_at: nowIso(), archived: 0,
+function seedDemo() {
+  const cpId = "demo-soccer";
+  carpools = [{
+    id: cpId, name: "Soccer Practice", description: "Tue/Thu practice run", location: "Riverside Field",
+    pickup_time: "16:30", weekdays: "2,4", driver_order: JSON.stringify(["demo-1", "demo-2", "demo-3"]),
+    created_by: "demo-1", created_by_name: "Alex", created_at: nowIso(), archived: 0,
   }];
-  slots = [
-    { id: "slot-turkey", event_id: eventId, name: "Turkey", capacity: 1, sort_order: 0 },
-    { id: "slot-sides", event_id: eventId, name: "Sides", capacity: 4, sort_order: 1 },
-    { id: "slot-desserts", event_id: eventId, name: "Desserts", capacity: 2, sort_order: 2 },
-  ];
-  claims = [{ id: "claim-1", event_id: eventId, slot_id: "slot-desserts", member_id: "demo-2", member_name: "Jordan", note: "Apple pie", claimed_at: nowIso() }];
+  const dates = upcomingDates(today(), [2, 4], 4);
+  assignments = dates.map((d, i) => ({
+    id: `demo-a${i}`, carpool_id: cpId, date: d, driver_id: rotationDriver(["demo-1", "demo-2", "demo-3"], i),
+    note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
+  }));
+  swaps = [];
 }
 
 async function loadData() {
-  if (!DB) { await seedDemo(); return; }
-  const [eventRows, slotRows, claimRows] = await Promise.all([
-    dbq("SELECT * FROM app_potluck__events WHERE archived = 0 ORDER BY date ASC, created_at ASC"),
-    dbq("SELECT * FROM app_potluck__slots ORDER BY sort_order ASC, name ASC"),
-    dbq("SELECT * FROM app_potluck__claims ORDER BY claimed_at ASC"),
+  if (!DB) { seedDemo(); return; }
+  const [cpRows, aRows, sRows] = await Promise.all([
+    dbq("SELECT * FROM app_carpool__carpools WHERE archived = 0 ORDER BY created_at ASC"),
+    dbq("SELECT * FROM app_carpool__assignments WHERE date >= ? ORDER BY date ASC", [addDays(today(), -1)]),
+    dbq("SELECT * FROM app_carpool__swap_requests WHERE status = 'open'"),
   ]);
-  events = eventRows.rows.map(e => ({ ...e, archived: !!e.archived }));
-  slots = slotRows.rows;
-  claims = claimRows.rows;
+  carpools = cpRows.rows.map(c => ({ ...c, archived: !!c.archived }));
+  assignments = aRows.rows;
+  swaps = sRows.rows;
+}
+function addDays(iso, n) {
+  const d = new Date(`${iso}T12:00:00`); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA");
 }
 
 async function refresh() {
   clearMessages();
   try {
-    await loadMembers();
-    await loadData();
-    if (selectedEventId && !events.some(e => e.id === selectedEventId)) selectedEventId = null;
+    await Promise.all([loadMembers(), loadData()]);
+    if (selectedCarpoolId && !carpools.some(c => c.id === selectedCarpoolId)) selectedCarpoolId = null;
+    handleDeepLink();
     render();
-  } catch (e) {
-    error = e.message;
-    render();
-  }
+  } catch (e) { error = e.message; render(); }
+}
+function handleDeepLink() {
+  const id = new URLSearchParams(window.location.search).get("carpoolId");
+  if (id && carpools.some(c => c.id === id)) selectedCarpoolId = id;
+}
+function clearMessages() { error = ""; notice = ""; }
+function showError(m) { error = m; notice = ""; render(); }
+function showNotice(m) { notice = m; error = ""; render(); }
+
+async function syncCalendar() {
+  if (!STORE_URL || !DB) return;
+  const events = buildCalendarEvents(carpools, assignments, today());
+  await fetch(STORE_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key: "calendar_events", value: JSON.stringify(events) }) }).catch(() => {});
 }
 
-function clearMessages() { error = ""; notice = ""; }
-function showError(message) { error = message; notice = ""; render(); }
-function showNotice(message) { notice = message; error = ""; render(); }
-
-async function createEvent(form) {
-  if (!canCreate()) return showError("Only adults and leadership can create potlucks.");
-  const title = form.title.value.trim();
-  const date = form.date.value;
+// ── create carpool + generate schedule ──
+async function createCarpool(form) {
+  if (!canManage()) return showError("Only adults can set up a carpool.");
+  const name = form.name.value.trim();
+  const pickup_time = form.pickup_time.value;
   const location = form.location.value.trim();
-  const notes = form.notes.value.trim();
-  const cleanSlots = draftSlots
-    .map((s, index) => ({ ...s, name: s.name.trim(), capacity: Math.max(1, Number(s.capacity) || 1), sort_order: index }))
-    .filter(s => s.name);
-  if (!title || !date || cleanSlots.length === 0) return showError("Add a title, date, and at least one dish slot.");
+  const description = form.description.value.trim();
+  const weekdays = [...draft.weekdays].sort((a, b) => a - b);
+  const drivers = draft.drivers.filter(id => memberMap.has(id));
+  if (!name) return showError("Give the carpool a name.");
+  if (weekdays.length === 0) return showError("Pick at least one weekday.");
+  if (drivers.length === 0) return showError("Choose at least one driver for the rotation.");
 
-  const event = {
-    id: uid("potluck"), title, date, location, notes,
-    created_by_id: currentMember.id, created_by_name: currentMember.name, created_at: nowIso(), archived: 0,
+  const btn = form.querySelector('button[type="submit"]');
+  if (btn) { btn.disabled = true; btn.textContent = "Creating…"; }
+
+  const cp = {
+    id: uid("cp"), name, description, location, pickup_time,
+    weekdays: weekdays.join(","), driver_order: JSON.stringify(drivers),
+    created_by: currentMember.id, created_by_name: currentMember.name, created_at: nowIso(), archived: 0,
   };
-  const eventSlotsToInsert = cleanSlots.map(s => ({ ...s, id: uid("slot"), event_id: event.id, created_at: nowIso() }));
-
+  const dates = upcomingDates(today(), weekdays, Math.ceil(HORIZON / 7) * weekdays.length);
+  const newAssignments = dates.map((d, i) => ({
+    id: uid("a"), carpool_id: cp.id, date: d, driver_id: rotationDriver(drivers, i),
+    note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
+  }));
   try {
     if (DB) {
-      await dbq(
-        `INSERT INTO app_potluck__events (id, title, date, location, notes, created_by_id, created_by_name, created_at, archived)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-        [event.id, event.title, event.date, event.location, event.notes, event.created_by_id, event.created_by_name, event.created_at]
-      );
-      for (const s of eventSlotsToInsert) {
-        await dbq(
-          `INSERT INTO app_potluck__slots (id, event_id, name, capacity, sort_order, created_at)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [s.id, s.event_id, s.name, s.capacity, s.sort_order, s.created_at]
-        );
+      await dbq(`INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+        [cp.id, cp.name, cp.description, cp.location, cp.pickup_time, cp.weekdays, cp.driver_order, cp.created_by, cp.created_by_name, cp.created_at]);
+      for (const a of newAssignments) {
+        await dbq(`INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, note, status, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, '', 'scheduled', ?, ?)`,
+          [a.id, a.carpool_id, a.date, a.driver_id, a.created_at, a.updated_at]);
       }
     }
-    events = [...events, event].sort((a, b) => a.date.localeCompare(b.date));
-    slots = [...slots, ...eventSlotsToInsert];
-    selectedEventId = event.id;
-    view = "upcoming";
-    showNotice("Potluck created.");
+    carpools = [...carpools, cp];
+    assignments = [...assignments, ...newAssignments];
+    draft = { name: "", location: "", pickup_time: "16:00", weekdays: new Set(), drivers: [] };
+    selectedCarpoolId = cp.id;
+    view = "carpools";
+    showNotice("Carpool created and scheduled.");
+    publish("carpool.assigned", cp.id, { name: cp.name, count: newAssignments.length });
+    syncCalendar();
   } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = "Create carpool"; }
     showError(e.message);
   }
 }
 
-async function claimSlot(slotId) {
-  const slot = slots.find(s => s.id === slotId);
-  if (!slot || !currentMember) return false;
-  if (myClaim(slotId)) { showError("You already claimed this slot."); return false; }
-  if (claimedCount(slotId) >= Number(slot.capacity)) { showError("That slot is already full."); return false; }
-  const claim = {
-    id: uid("claim"), event_id: slot.event_id, slot_id: slot.id,
-    member_id: currentMember.id, member_name: currentMember.name, note: "", claimed_at: nowIso(),
-  };
+async function extendSchedule(carpoolId) {
+  if (!canManage()) return;
+  const cp = carpoolById(carpoolId);
+  if (!cp) return;
+  const weekdays = parseWeekdays(cp.weekdays);
+  const order = safeParse(cp.driver_order, []);
+  const existing = carpoolAssignments(carpoolId);
+  const lastDate = existing.length ? existing[existing.length - 1].date : today();
+  const startFrom = addDays(lastDate, 1);
+  const dates = upcomingDates(startFrom, weekdays, Math.ceil(HORIZON / 7) * Math.max(1, weekdays.length));
+  const offset = existing.length;
+  const created = dates.map((d, i) => ({
+    id: uid("a"), carpool_id: carpoolId, date: d, driver_id: rotationDriver(order, offset + i),
+    note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
+  }));
+  if (!created.length) { showNotice("Nothing to add yet."); return; }
+  try {
+    if (DB) for (const a of created) {
+      await dbq(`INSERT OR IGNORE INTO app_carpool__assignments (id, carpool_id, date, driver_id, note, status, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, '', 'scheduled', ?, ?)`,
+        [a.id, a.carpool_id, a.date, a.driver_id, a.created_at, a.updated_at]);
+    }
+    assignments = [...assignments, ...created];
+    showNotice(`Added ${created.length} more driving days.`);
+    syncCalendar();
+  } catch (e) { showError(e.message); }
+}
+
+async function reassign(assignmentId, driverId) {
+  if (!canManage()) return;
+  try {
+    if (DB) await dbq("UPDATE app_carpool__assignments SET driver_id = ?, updated_at = ? WHERE id = ?", [driverId, nowIso(), assignmentId]);
+    patchAssignment(assignmentId, { driver_id: driverId });
+    render();
+    syncCalendar();
+  } catch (e) { showError(e.message); }
+}
+
+async function requestSwap(assignmentId) {
+  const a = assignments.find(x => x.id === assignmentId);
+  if (!a) return;
+  if (a.driver_id !== currentMember?.id) return showError("Only the assigned driver can request a swap.");
+  if (openSwap(assignmentId)) return showError("A swap is already open for this day.");
+  const ok = await hubConfirm({ message: `Ask another driver to cover ${fmtDay(a.date)}?`, confirmLabel: "Request swap" });
+  if (!ok) return;
+  const req = { id: uid("sw"), carpool_id: a.carpool_id, assignment_id: assignmentId, requested_by: currentMember.id, reason: "", status: "open", resolved_by: "", created_at: nowIso(), updated_at: nowIso() };
+  try {
+    if (DB) await dbq(`INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at)
+                       VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?)`,
+      [req.id, req.carpool_id, req.assignment_id, req.requested_by, req.reason, req.created_at, req.updated_at]);
+    swaps = [...swaps, req];
+    render();
+    showNotice("Swap requested — other drivers can cover you.");
+    publish("carpool.swap_requested", assignmentId, { carpool_id: a.carpool_id });
+    sendHubNotification({ title: "Carpool swap needed", body: `${currentMember.name} needs coverage on ${fmtDay(a.date)}.`, url: hubAppUrl(APP_ID, { carpoolId: a.carpool_id }) }).catch(() => {});
+  } catch (e) { showError(e.message); }
+}
+
+async function acceptSwap(assignmentId) {
+  if (!canManage()) return showError("Only adults can cover a drive.");
+  const req = openSwap(assignmentId);
+  const a = assignments.find(x => x.id === assignmentId);
+  if (!req || !a) return;
+  if (req.requested_by === currentMember?.id) return showError("You can't cover your own swap request.");
+  const ok = await hubConfirm({ message: `Cover this drive on ${fmtDay(a.date)}?`, confirmLabel: "Cover it" });
+  if (!ok) return;
   try {
     if (DB) {
-      const result = await dbq(
-        `INSERT INTO app_potluck__claims (id, event_id, slot_id, member_id, member_name, note, claimed_at)
-         SELECT ?, ?, ?, ?, ?, ?, ?
-         WHERE (SELECT COUNT(*) FROM app_potluck__claims WHERE slot_id = ?) <
-               (SELECT capacity FROM app_potluck__slots WHERE id = ?)
-           AND NOT EXISTS (
-             SELECT 1 FROM app_potluck__claims WHERE slot_id = ? AND member_id = ?
-           )`,
-        [claim.id, claim.event_id, claim.slot_id, claim.member_id, claim.member_name, claim.note, claim.claimed_at, slot.id, slot.id, slot.id, currentMember.id]
-      );
-      if (result.meta?.changes === 0) throw new Error("Someone just claimed the last opening. Refreshing the list.");
+      await dbq("UPDATE app_carpool__assignments SET driver_id = ?, updated_at = ? WHERE id = ?", [currentMember.id, nowIso(), assignmentId]);
+      await dbq("UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ?", [currentMember.id, nowIso(), req.id]);
     }
-    claims = [...claims, claim];
-    showNotice(`Claimed ${slot.name}.`);
-    return true;
-  } catch (e) {
-    await loadData().catch(() => {});
-    showError(e.message);
-    return false;
-  }
+    patchAssignment(assignmentId, { driver_id: currentMember.id });
+    swaps = swaps.filter(s => s.id !== req.id);
+    render();
+    showNotice("You're covering this drive.");
+    publish("carpool.swap_accepted", assignmentId, { carpool_id: a.carpool_id });
+    if (req.requested_by) sendHubNotification({ title: "Carpool covered", body: `${currentMember.name} is covering your ${fmtDay(a.date)} drive.`, audience: [req.requested_by], url: hubAppUrl(APP_ID, { carpoolId: a.carpool_id }) }).catch(() => {});
+  } catch (e) { showError(e.message); }
 }
 
-async function releaseClaim(claimId) {
-  const claim = claims.find(c => c.id === claimId);
-  if (!claim) return false;
-  const allowed = claim.member_id === currentMember?.id || canCreate();
-  if (!allowed) { showError("You can only release your own claim."); return false; }
+async function cancelSwap(assignmentId) {
+  const req = openSwap(assignmentId);
+  if (!req) return;
+  if (req.requested_by !== currentMember?.id && !canManage()) return;
   try {
-    if (DB) await dbq("DELETE FROM app_potluck__claims WHERE id = ?", [claimId]);
-    claims = claims.filter(c => c.id !== claimId);
-    showNotice("Dish released.");
-    return true;
-  } catch (e) {
-    showError(e.message);
-    return false;
-  }
+    if (DB) await dbq("UPDATE app_carpool__swap_requests SET status = 'cancelled', updated_at = ? WHERE id = ?", [nowIso(), req.id]);
+    swaps = swaps.filter(s => s.id !== req.id);
+    render();
+  } catch (e) { showError(e.message); }
 }
 
-async function swapTo(slotId) {
-  const eventId = selectedEventId;
-  const own = claims.find(c => c.event_id === eventId && c.member_id === currentMember?.id);
-  if (!own) return claimSlot(slotId);
-  if (own.slot_id === slotId) return;
-  const ok = await hubConfirm("Move your claim to this dish slot?");
-  if (!ok) return;
-  const oldClaimId = own.id;
-  const claimedNewSlot = await claimSlot(slotId);
-  if (claimedNewSlot) await releaseClaim(oldClaimId);
+async function setStatus(assignmentId, status) {
+  if (!canManage()) return;
+  try {
+    if (DB) await dbq("UPDATE app_carpool__assignments SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), assignmentId]);
+    patchAssignment(assignmentId, { status });
+    render();
+    syncCalendar();
+  } catch (e) { showError(e.message); }
 }
 
-async function archiveEvent(eventId) {
-  if (!canCreate()) return showError("Only adults and leadership can archive potlucks.");
-  const ok = await hubConfirm({
-    message: "Archive this potluck?",
-    description: "It will be hidden from the active gathering list. Existing claims are preserved.",
-    confirmLabel: "Archive",
-    destructive: true,
-  });
+async function archiveCarpool(carpoolId) {
+  if (!canManage()) return;
+  const ok = await hubConfirm({ message: "Archive this carpool?", description: "It stops appearing on the schedule and calendar. Existing days are kept.", confirmLabel: "Archive", destructive: true });
   if (!ok) return;
   try {
-    if (DB) await dbq("UPDATE app_potluck__events SET archived = 1 WHERE id = ?", [eventId]);
-    events = events.filter(e => e.id !== eventId);
-    selectedEventId = null;
-    showNotice("Potluck archived.");
-  } catch (e) {
-    showError(e.message);
-  }
+    if (DB) await dbq("UPDATE app_carpool__carpools SET archived = 1 WHERE id = ?", [carpoolId]);
+    carpools = carpools.filter(c => c.id !== carpoolId);
+    selectedCarpoolId = null;
+    showNotice("Carpool archived.");
+    syncCalendar();
+  } catch (e) { showError(e.message); }
 }
 
-function addDraftSlot() {
-  draftSlots.push({ name: "", capacity: 1 });
-  render();
+function patchAssignment(id, patch) {
+  const i = assignments.findIndex(a => a.id === id);
+  if (i !== -1) assignments[i] = { ...assignments[i], ...patch, updated_at: nowIso() };
 }
-function updateDraft(index, field, value) {
-  draftSlots[index][field] = field === "capacity" ? Math.max(1, Number(value) || 1) : value;
-}
-function removeDraft(index) {
-  draftSlots.splice(index, 1);
-  if (!draftSlots.length) addDraftSlot();
+function safeParse(s, fallback) { try { const v = JSON.parse(s); return Array.isArray(v) ? v : fallback; } catch { return fallback; } }
+
+// ── draft editing ──
+function toggleWeekday(d) { draft.weekdays.has(d) ? draft.weekdays.delete(d) : draft.weekdays.add(d); render(); }
+function toggleDriver(id) {
+  const i = draft.drivers.indexOf(id);
+  if (i === -1) draft.drivers.push(id); else draft.drivers.splice(i, 1);
   render();
 }
 
-function renderMessages() {
-  return `${error ? `<div class="error">${esc(error)}</div>` : ""}${notice ? `<div class="notice">${esc(notice)}</div>` : ""}`;
+// ── render ──
+function renderMessages() { return `${error ? `<div class="error">${esc(error)}</div>` : ""}${notice ? `<div class="notice">${esc(notice)}</div>` : ""}`; }
+function renderTabs() {
+  return `<div class="tabs">
+    <button class="tab ${view === "carpools" ? "active" : ""}" data-tab="carpools">Carpools</button>
+    <button class="tab ${view === "mine" ? "active" : ""}" data-tab="mine">My drives</button>
+  </div>`;
 }
-
-function renderEventCard(event) {
-  const totals = eventTotals(event.id);
-  const statusClass = totals.capacity && totals.claimed >= totals.capacity ? "good" : totals.claimed ? "info" : "warn";
+function driverChip(id) {
+  if (!id) return `<span class="muted tiny">Unassigned</span>`;
+  return `<span class="driver"><span class="avatar" style="background:${esc(memberColor(id, members))}">${esc(initial(memberName(id)))}</span>${esc(memberName(id))}</span>`;
+}
+function renderCarpoolCard(cp) {
+  const next = carpoolAssignments(cp.id).find(a => a.date >= today() && a.status === "scheduled");
+  const days = parseWeekdays(cp.weekdays).map(d => WD[d]).join(" · ");
   return `
-    <article class="card event-card" data-open-event="${esc(event.id)}">
-      <div class="event-head">
+    <article class="card cp-card" data-open="${esc(cp.id)}">
+      <div class="head">
         <div>
-          <div class="event-title">${esc(event.title)}</div>
-          <div class="event-meta">${esc(fmtDate(event.date))}${event.location ? ` · ${esc(event.location)}` : ""}</div>
+          <div class="title">${esc(cp.name)}</div>
+          <div class="meta">${esc(days)}${cp.pickup_time ? ` · ${esc(cp.pickup_time)}` : ""}${cp.location ? ` · ${esc(cp.location)}` : ""}</div>
         </div>
-        <span class="pill ${statusClass}">${totals.claimed}/${totals.capacity} claimed</span>
+        ${next ? `<span class="pill info">Next: ${esc(fmtDay(next.date))}</span>` : `<span class="pill warn">No upcoming days</span>`}
       </div>
-      ${event.notes ? `<p class="event-meta">${esc(event.notes)}</p>` : ""}
-      <div class="progress" aria-hidden="true"><span style="width:${totals.pct}%"></span></div>
-    </article>
-  `;
+      ${next ? `<div class="meta">Driving next: ${next.driver_id ? esc(memberName(next.driver_id)) : "unassigned"}</div>` : ""}
+    </article>`;
 }
-
 function renderList() {
-  const visible = [...events].sort((a, b) => a.date.localeCompare(b.date));
   return `
     <div class="topbar">
-      <div>
-        <h1>Potluck</h1>
-        <p class="muted tiny">Claim dishes without double-booking dessert.</p>
-      </div>
-      ${canCreate() ? `<button class="btn" data-view-create>Create</button>` : ""}
+      <div><h1>Carpool Coordinator</h1><p class="muted tiny">Recurring rotations, swaps, and calendar sync.</p></div>
+      ${canManage() ? `<button class="btn" data-view-create>New carpool</button>` : ""}
     </div>
     ${renderMessages()}
-    <div class="section-head">
-      <h2>Gatherings</h2>
-      <button class="btn btn-ghost btn-sm" type="button" data-refresh>Refresh</button>
-    </div>
-    <section class="stack">
-      ${visible.length ? visible.map(renderEventCard).join("") : `<div class="card empty">No potlucks yet.</div>`}
-    </section>
-  `;
+    ${renderTabs()}
+    <div class="section-head"><h2>Active carpools</h2><button class="btn btn-ghost btn-sm" data-refresh>Refresh</button></div>
+    <section class="stack">${carpools.length ? carpools.map(renderCarpoolCard).join("") : `<div class="card empty">No carpools yet.</div>`}</section>`;
 }
-
+function renderMine() {
+  const mine = assignments
+    .filter(a => a.driver_id === currentMember?.id && a.date >= today() && a.status === "scheduled")
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const rows = mine.map(a => {
+    const cp = carpoolById(a.carpool_id);
+    const sw = openSwap(a.id);
+    return `
+      <article class="card">
+        <div class="head">
+          <div><div class="title">${esc(cp?.name ?? "Carpool")}</div><div class="meta">${esc(fmtDay(a.date))}${cp?.pickup_time ? ` · ${esc(cp.pickup_time)}` : ""}</div></div>
+          ${sw ? `<button class="btn btn-ghost btn-sm" data-cancel-swap="${esc(a.id)}">Cancel swap</button>` : `<button class="btn btn-ghost btn-sm" data-request-swap="${esc(a.id)}">Request swap</button>`}
+        </div>
+      </article>`;
+  });
+  return `
+    <div class="topbar"><div><h1>My drives</h1></div></div>
+    ${renderMessages()}
+    ${renderTabs()}
+    <section class="stack">${rows.length ? rows.join("") : `<div class="card empty">You have no upcoming drives.</div>`}</section>`;
+}
+function renderAssignment(a) {
+  const cp = selectedCarpool();
+  const sw = openSwap(a.id);
+  const isDriver = a.driver_id === currentMember?.id;
+  const opts = adultMembers().map(m => `<option value="${esc(m.id)}" ${m.id === a.driver_id ? "selected" : ""}>${esc(m.name)}</option>`).join("");
+  const past = a.date < today();
+  let swapUi = "";
+  if (a.status === "scheduled" && !past) {
+    if (sw) {
+      const canCover = canManage() && sw.requested_by !== currentMember?.id;
+      swapUi = `<span class="pill warn">Swap needed</span>${canCover ? `<button class="btn btn-sm" data-accept-swap="${esc(a.id)}">Cover it</button>` : ""}`;
+    } else if (isDriver) {
+      swapUi = `<button class="btn btn-ghost btn-sm" data-request-swap="${esc(a.id)}">Request swap</button>`;
+    }
+  }
+  return `
+    <div class="row">
+      <div class="row-top">
+        <div class="date-badge">${esc(fmtDay(a.date))} ${a.status !== "scheduled" ? `<span class="pill">${esc(a.status)}</span>` : ""}</div>
+        <div class="actions">
+          ${canManage() && !past
+            ? `<select class="inline" data-reassign="${esc(a.id)}"><option value="">Unassigned</option>${opts}</select>`
+            : driverChip(a.driver_id)}
+          ${swapUi}
+          ${canManage() && a.status === "scheduled" ? `<button class="btn btn-quiet-danger" data-skip="${esc(a.id)}">Skip</button>` : ""}
+        </div>
+      </div>
+      ${sw && sw.reason ? `<div class="meta tiny">“${esc(sw.reason)}” — ${esc(memberName(sw.requested_by))}</div>` : ""}
+    </div>`;
+}
 function renderDetail() {
-  const event = selectedEvent();
-  if (!event) return renderList();
-  const totals = eventTotals(event.id);
-  const ownClaims = claims.filter(c => c.event_id === event.id && c.member_id === currentMember?.id);
+  const cp = selectedCarpool();
+  if (!cp) return renderList();
+  const days = parseWeekdays(cp.weekdays).map(d => WD[d]).join(" · ");
+  const upcoming = carpoolAssignments(cp.id).filter(a => a.date >= today());
   return `
     <button class="btn btn-ghost btn-sm back" data-back>Back</button>
     ${renderMessages()}
     <section class="card stack">
-      <div class="event-head">
-        <div>
-          <h1>${esc(event.title)}</h1>
-          <p class="muted">${esc(fmtDate(event.date))}${event.location ? ` · ${esc(event.location)}` : ""}</p>
-        </div>
-        <div class="event-tools">
-          <span class="pill ${totals.claimed >= totals.capacity ? "good" : "info"}">${totals.claimed}/${totals.capacity} spots</span>
-          ${canCreate() ? `<button class="btn btn-quiet-danger" data-archive="${esc(event.id)}">Archive</button>` : ""}
+      <div class="head">
+        <div><h1>${esc(cp.name)}</h1><p class="muted">${esc(days)}${cp.pickup_time ? ` · pickup ${esc(cp.pickup_time)}` : ""}${cp.location ? ` · ${esc(cp.location)}` : ""}</p></div>
+        <div class="tools">
+          ${canManage() ? `<button class="btn btn-ghost btn-sm" data-extend="${esc(cp.id)}">Extend</button>` : ""}
+          ${canManage() ? `<button class="btn btn-quiet-danger" data-archive="${esc(cp.id)}">Archive</button>` : ""}
         </div>
       </div>
-      ${event.notes ? `<p>${esc(event.notes)}</p>` : ""}
-      ${ownClaims.length ? `<p class="muted tiny">You are bringing ${ownClaims.map(c => esc(slots.find(s => s.id === c.slot_id)?.name ?? "a dish")).join(", ")}.</p>` : ""}
+      ${cp.description ? `<p>${esc(cp.description)}</p>` : ""}
     </section>
     <section class="card">
-      <h2>Dish slots</h2>
-      ${eventSlots(event.id).map(renderSlot).join("") || `<div class="empty">No dish slots yet.</div>`}
-    </section>
-  `;
+      <h2>Schedule</h2>
+      ${upcoming.length ? upcoming.map(renderAssignment).join("") : `<div class="empty">No upcoming days. ${canManage() ? "Use Extend to add more." : ""}</div>`}
+    </section>`;
 }
-
-function renderSlot(slot) {
-  const sc = slotClaims(slot.id);
-  const mine = myClaim(slot.id);
-  const full = sc.length >= Number(slot.capacity);
-  const hasAnyMine = claims.some(c => c.event_id === slot.event_id && c.member_id === currentMember?.id);
-  const claimButton = mine
-    ? `<button class="btn btn-danger btn-sm" data-release="${esc(mine.id)}">Release</button>`
-    : `<button class="btn btn-sm" data-claim="${esc(slot.id)}" ${full ? "disabled" : ""}>${hasAnyMine ? "Swap here" : "Claim"}</button>`;
-  return `
-    <div class="slot">
-      <div class="slot-top">
-        <div>
-          <div class="slot-name">${esc(slot.name)}</div>
-        </div>
-        <span class="pill ${full ? "good" : "warn"}">${sc.length}/${slot.capacity}</span>
-      </div>
-      <div class="claims">
-        ${sc.length ? sc.map(renderClaim).join("") : `<span class="muted tiny">Open spot</span>`}
-      </div>
-      <div class="actions">${mine ? claimButton : claimButton.replace("data-claim", hasAnyMine ? "data-swap" : "data-claim")}</div>
-    </div>
-  `;
-}
-
-function renderClaim(claim) {
-  const member = memberById(claim.member_id);
-  const color = memberColor(member?.id ?? claim.member_id);
-  return `
-    <span class="claim-chip">
-      <span class="avatar" style="background:${esc(color)}">${esc(initial(claim.member_name))}</span>
-      ${esc(claim.member_name)}
-    </span>
-  `;
-}
-
 function renderCreate() {
+  const dchips = WD.map((label, d) => `<button type="button" class="chip ${draft.weekdays.has(d) ? "on" : ""}" data-weekday="${d}">${label}</button>`).join("");
+  const drivers = adultMembers().map(m => {
+    const pos = draft.drivers.indexOf(m.id);
+    return `<label class="driver-opt"><input type="checkbox" data-driver="${esc(m.id)}" ${pos !== -1 ? "checked" : ""} /> ${esc(m.name)} ${pos !== -1 ? `<span class="pill info">#${pos + 1}</span>` : ""}</label>`;
+  }).join("");
   return `
     <button class="btn btn-ghost btn-sm back" data-view-list>Back</button>
-    <div class="topbar"><h1>Create Potluck</h1></div>
+    <div class="topbar"><h1>New carpool</h1></div>
     ${renderMessages()}
     <form class="card form" id="create-form">
       <div class="grid two">
-        <div class="field">
-          <label for="title">Gathering</label>
-          <input id="title" name="title" value="Holiday Dinner" required />
-        </div>
-        <div class="field">
-          <label for="date">Date</label>
-          <input id="date" name="date" type="date" value="${today()}" required />
-        </div>
+        <div class="field"><label for="f-name">Name</label><input id="f-name" name="name" value="${esc(draft.name)}" placeholder="Soccer Practice" required /></div>
+        <div class="field"><label for="f-time">Pickup time</label><input id="f-time" name="pickup_time" type="time" value="${esc(draft.pickup_time)}" /></div>
       </div>
-      <div class="field">
-        <label for="location">Location</label>
-        <input id="location" name="location" placeholder="Home, clubhouse, chapter hall" />
-      </div>
-      <div class="field">
-        <label for="notes">Notes</label>
-        <textarea id="notes" name="notes" placeholder="Theme, headcount, arrival window"></textarea>
-      </div>
-      <div class="field">
-        <label>Dish slots</label>
-        <div class="slot-builder">
-          ${draftSlots.map((s, i) => `
-            <div class="slot-row">
-              <input data-draft="${i}" data-field="name" value="${esc(s.name)}" placeholder="Dish category" />
-              <input data-draft="${i}" data-field="capacity" type="number" min="1" value="${esc(String(s.capacity))}" aria-label="Capacity" />
-              <button class="btn btn-ghost btn-sm" type="button" data-remove-draft="${i}">Remove</button>
-            </div>
-          `).join("")}
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-ghost" type="button" data-add-slot>Add slot</button>
-        <button class="btn" type="submit">Create potluck</button>
-      </div>
-    </form>
-  `;
+      <div class="field"><label for="f-loc">Location</label><input id="f-loc" name="location" value="${esc(draft.location)}" placeholder="Field, school, rink" /></div>
+      <div class="field"><label for="f-desc">Notes</label><textarea id="f-desc" name="description" placeholder="Anything drivers should know"></textarea></div>
+      <div class="field"><label>Which days</label><div class="chips">${dchips}</div></div>
+      <div class="field"><label>Driver rotation (in order)</label><div class="drivers-pick">${drivers || `<span class="muted tiny">No adults available.</span>`}</div></div>
+      <div class="actions"><button class="btn" type="submit">Create carpool</button></div>
+    </form>`;
 }
-
 function render() {
   const root = document.getElementById("root");
   root.className = "app";
-  root.innerHTML = selectedEventId ? renderDetail() : view === "create" ? renderCreate() : renderList();
+  if (selectedCarpoolId) root.innerHTML = renderDetail();
+  else if (view === "create") root.innerHTML = renderCreate();
+  else if (view === "mine") root.innerHTML = renderMine();
+  else root.innerHTML = renderList();
 }
 
 document.addEventListener("click", (event) => {
-  const target = event.target.closest("button, [data-open-event]");
-  if (!target) return;
-  const openId = target.getAttribute("data-open-event");
-  if (openId) { selectedEventId = openId; clearMessages(); render(); return; }
-  if (target.matches("[data-back], [data-view-list]")) { selectedEventId = null; view = "upcoming"; clearMessages(); render(); return; }
-  if (target.matches("[data-view-create]")) { view = "create"; clearMessages(); render(); return; }
-  if (target.matches("[data-refresh]")) { refresh(); return; }
-  if (target.matches("[data-add-slot]")) { addDraftSlot(); return; }
-  if (target.hasAttribute("data-remove-draft")) { removeDraft(Number(target.getAttribute("data-remove-draft"))); return; }
-  if (target.hasAttribute("data-claim")) { claimSlot(target.getAttribute("data-claim")); return; }
-  if (target.hasAttribute("data-swap")) { swapTo(target.getAttribute("data-swap")); return; }
-  if (target.hasAttribute("data-release")) { releaseClaim(target.getAttribute("data-release")); return; }
-  if (target.hasAttribute("data-archive")) { archiveEvent(target.getAttribute("data-archive")); return; }
+  const t = event.target.closest("button, [data-open]");
+  if (!t) return;
+  const open = t.getAttribute("data-open");
+  if (open) { selectedCarpoolId = open; clearMessages(); render(); return; }
+  if (t.matches("[data-back], [data-view-list]")) { selectedCarpoolId = null; view = "carpools"; clearMessages(); render(); return; }
+  if (t.matches("[data-view-create]")) { view = "create"; selectedCarpoolId = null; clearMessages(); render(); return; }
+  if (t.hasAttribute("data-tab")) { view = t.getAttribute("data-tab"); selectedCarpoolId = null; clearMessages(); render(); return; }
+  if (t.matches("[data-refresh]")) { refresh(); return; }
+  if (t.hasAttribute("data-weekday")) { toggleWeekday(Number(t.getAttribute("data-weekday"))); return; }
+  if (t.hasAttribute("data-extend")) { extendSchedule(t.getAttribute("data-extend")); return; }
+  if (t.hasAttribute("data-archive")) { archiveCarpool(t.getAttribute("data-archive")); return; }
+  if (t.hasAttribute("data-request-swap")) { requestSwap(t.getAttribute("data-request-swap")); return; }
+  if (t.hasAttribute("data-accept-swap")) { acceptSwap(t.getAttribute("data-accept-swap")); return; }
+  if (t.hasAttribute("data-cancel-swap")) { cancelSwap(t.getAttribute("data-cancel-swap")); return; }
+  if (t.hasAttribute("data-skip")) { setStatus(t.getAttribute("data-skip"), "skipped"); return; }
 });
-
+document.addEventListener("change", (event) => {
+  const sel = event.target.closest("[data-reassign]");
+  if (sel) { reassign(sel.getAttribute("data-reassign"), sel.value); return; }
+  const dv = event.target.closest("[data-driver]");
+  if (dv) { toggleDriver(dv.getAttribute("data-driver")); return; }
+});
 document.addEventListener("input", (event) => {
-  const input = event.target.closest("[data-draft]");
-  if (!input) return;
-  updateDraft(Number(input.getAttribute("data-draft")), input.getAttribute("data-field"), input.value);
+  const f = event.target;
+  if (f.name === "name") draft.name = f.value;
+  else if (f.name === "location") draft.location = f.value;
+  else if (f.name === "pickup_time") draft.pickup_time = f.value;
 });
-
 document.addEventListener("submit", (event) => {
   if (event.target.id !== "create-form") return;
   event.preventDefault();
-  createEvent(event.target);
+  createCarpool(event.target);
 });
 
 refresh();

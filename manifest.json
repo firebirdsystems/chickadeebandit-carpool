@@ -1,47 +1,49 @@
 {
-  "id": "potluck",
-  "name": "Potluck",
+  "id": "carpool",
+  "name": "Carpool Coordinator",
   "version": "1.0.0",
-  "description": "Create gatherings with dish slots and let members claim, swap, and release dishes without overbooking a category.",
+  "description": "Organize recurring carpool rotations for school, sports, or activities — assign drivers by day, handle swap requests, and surface pickups on the shared family calendar.",
   "entrypoint": "index.html",
   "runtime": "static",
-  "category": "family",
-  "tags": ["food", "events", "potluck", "slot-claims"],
+  "category": "organization",
+  "tags": ["carpool", "driving", "rotation", "scheduling", "calendar"],
   "data_access": {
     "reads": ["family.members"],
-    "writes": ["family.members"]
+    "writes": []
   },
   "permissions": {
     "default_audience": "everyone",
     "requires_approval": false
   },
   "storage": "db",
+  "db_plaintext_columns": ["date"],
   "row_policies": {
-    "events": {
+    "carpools": {
       "kind": "adult_writable"
     },
-    "slots": {
+    "assignments": {
       "kind": "adult_writable"
     },
-    "claims": {
-      "kind": "owner_only",
-      "member_column": "member_id",
-      "adults_bypass": true,
-      "unique_per_member": {
-        "member_column": "member_id",
-        "scope_columns": ["event_id", "slot_id"]
-      }
+    "swap_requests": {
+      "kind": "adult_writable"
     }
   },
-  "publishes": ["potluck.event_created", "potluck.slot_claimed", "potluck.slot_released"],
-  "nav": { "label": "Potluck" },
+  "exports": ["calendar_events"],
+  "store_acls": {
+    "calendar_events": {
+      "write": { "require_role": "adult" }
+    }
+  },
+  "publishes": ["carpool.assigned", "carpool.swap_requested", "carpool.swap_accepted"],
+  "nav": { "label": "Carpool" },
+  "widget": { "label": "Carpool", "size": "small" },
   "resource_limits": {
     "max_db_bytes": 52428800
   },
-  "icon": "🍽️",
+  "icon": "🚗",
   "ai_access": {
     "allowed": true,
     "mode": "read",
-    "db_exports": ["upcoming_potlucks", "claim_summary"]
+    "db_exports": ["upcoming_carpools", "driver_load"]
   }
 }
