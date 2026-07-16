@@ -1,7 +1,7 @@
 {
   "id": "carpool",
   "name": "Carpool Coordinator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Organize recurring carpool rotations for school, sports, or activities — assign drivers by day, handle swap requests, and surface pickups on the shared family calendar.",
   "entrypoint": "index.html",
   "runtime": "static",
@@ -16,7 +16,7 @@
     "requires_approval": false
   },
   "storage": "db",
-  "db_plaintext_columns": ["date"],
+  "db_plaintext_columns": ["date", "pickup_time"],
   "row_policies": {
     "carpools": {
       "kind": "adult_writable"
@@ -29,6 +29,14 @@
     }
   },
   "exports": ["calendar_events"],
+  "agenda": {
+    "kind": "event",
+    "label": "Rides",
+    "source": {
+      "kind": "sql",
+      "query": "SELECT a.id AS id, c.name AS title, c.location AS subtitle, COALESCE(NULLIF(c.pickup_time, ''), a.date) AS when_at, a.driver_id AS member_id, (a.status = 'done') AS done FROM app_carpool__assignments a JOIN app_carpool__carpools c ON c.id = a.carpool_id AND c.archived = 0 WHERE a.date = :today AND a.status != 'skipped' ORDER BY c.pickup_time LIMIT 20"
+    }
+  },
   "store_acls": {
     "calendar_events": {
       "write": { "require_role": "adult" }
