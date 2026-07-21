@@ -7,6 +7,7 @@
   "runtime": "static",
   "category": "organization",
   "tags": ["carpool", "driving", "rotation", "scheduling", "calendar"],
+  "contexts": ["household", "shared_space"],
   "data_access": {
     "reads": ["family.members"],
     "writes": []
