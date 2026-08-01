@@ -51,7 +51,8 @@
     ],
     "assignments": {
       "column": "driver_id",
-      "on_removed": "delete",
+      "on_removed": "null",
+      "null_value": "",
       "only_when": { "column": "status", "values": ["scheduled"] }
     },
     "swap_requests": [
