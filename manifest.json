@@ -44,6 +44,21 @@
     }
   },
   "publishes": ["carpool.assigned", "carpool.swap_requested", "carpool.swap_accepted"],
+  "member_references": {
+    "carpools": [
+      { "column": "created_by", "on_removed": "keep" },
+      { "column": "driver_order", "on_removed": "prune_list" }
+    ],
+    "assignments": {
+      "column": "driver_id",
+      "on_removed": "delete",
+      "only_when": { "column": "status", "values": ["scheduled"] }
+    },
+    "swap_requests": [
+      { "column": "requested_by", "on_removed": "keep" },
+      { "column": "resolved_by", "on_removed": "keep" }
+    ]
+  },
   "nav": { "label": "Carpool" },
   "widget": { "label": "Carpool", "size": "small" },
   "resource_limits": {

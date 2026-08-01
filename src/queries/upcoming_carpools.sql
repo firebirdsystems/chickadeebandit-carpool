@@ -11,6 +11,6 @@ SELECT
 FROM app_carpool__assignments a
 JOIN app_carpool__carpools c
   ON c.id = a.carpool_id AND c.archived = 0
-WHERE a.date >= date('now') AND a.status = 'scheduled'
+WHERE a.date >= :today AND a.status = 'scheduled'
 ORDER BY a.date ASC
 LIMIT 200
