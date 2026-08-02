@@ -43,6 +43,18 @@
       "write": { "require_role": "adult" }
     }
   },
+  "glance": {
+    "source": {
+      "kind": "sql",
+      "query": "SELECT COUNT(*) AS n FROM app_carpool__assignments WHERE driver_id = :me AND status = 'scheduled' AND date >= :today AND date <= date(:today, '+6 days') LIMIT 1"
+    },
+    "display": {
+      "template": "badge",
+      "count": "n",
+      "label": "carpool turns this week",
+      "severity": "info"
+    }
+  },
   "publishes": ["carpool.assigned", "carpool.swap_requested", "carpool.swap_accepted"],
   "member_references": {
     "carpools": [
