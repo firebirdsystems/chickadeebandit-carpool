@@ -17,6 +17,10 @@
     "requires_approval": false
   },
   "storage": "db",
+  "preload": {
+    "carpools": {"sql": "SELECT * FROM app_carpool__carpools WHERE archived = 0 ORDER BY created_at ASC"},
+    "swap_requests": {"sql": "SELECT * FROM app_carpool__swap_requests WHERE status = 'open'"}
+  },
   "db_plaintext_columns": ["date", "pickup_time"],
   "row_policies": {
     "carpools": {
