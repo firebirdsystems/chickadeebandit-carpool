@@ -22,11 +22,15 @@ export function upcomingDates(fromDate, weekdays, count) {
   const days = new Set(weekdays);
   const out = [];
   if (!days.size || count <= 0) return out;
-  const cursor = new Date(`${fromDate}T12:00:00`);
+  // Anchored and stepped in UTC. The old `T12:00:00` local-noon trick papered
+  // over the offset for most of the world but still lands on the wrong day past
+  // ±12h, and `getDay()` on a local instant can disagree with the date string
+  // the loop emits.
+  const cursor = new Date(`${fromDate}T00:00:00Z`);
   let guard = 0;
   while (out.length < count && guard < 400) {
-    if (days.has(cursor.getDay())) out.push(cursor.toISOString().slice(0, 10));
-    cursor.setDate(cursor.getDate() + 1);
+    if (days.has(cursor.getUTCDay())) out.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
     guard++;
   }
   return out;
