@@ -1,5 +1,7 @@
 # Carpool Coordinator
 
+A [Chickadee Bandit](https://chickadeebandit.com/app-library/carpool) app.
+
 Organize recurring carpool rotations for school, sports, or activities. Adults create
 a rotation (which weekdays, what pickup time, and the driver order), and the app
 generates a driving schedule that cycles drivers across the matching days. Members see
