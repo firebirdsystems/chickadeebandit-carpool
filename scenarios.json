@@ -1,0 +1,223 @@
+{
+  "scenarios": [
+    {
+      "name": "everyone reads the rotation, but only adults create carpools or change assignments",
+      "members": {
+        "parent": "adult",
+        "kid": "child"
+      },
+      "steps": [
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, pickup_time, weekdays, driver_order, created_by, created_at) VALUES ('cp1', 'Soccer Practice', '15:30', '1,3', '[]', ?, '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, status, created_at, updated_at) VALUES ('a1', 'cp1', '2026-01-05', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ]
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT id FROM app_carpool__carpools",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "cp1"
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, created_by, created_at) VALUES ('cp2', 'Kid run', ?, '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{kid}}"
+          ],
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "UPDATE app_carpool__assignments SET driver_id = ? WHERE id = 'a1'",
+          "params": [
+            "{{kid}}"
+          ],
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id, driver_id FROM app_carpool__assignments",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "a1",
+                "driver_id": "scn-parent"
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id FROM app_carpool__carpools",
+          "expect": {
+            "status": 200,
+            "rowCount": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "a carpool has at most one assignment per date",
+      "members": {
+        "parent": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, created_by, created_at) VALUES ('cp1', 'School run', ?, '2026-01-01T00:00:00Z'), ('cp2', 'Swim', ?, '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}",
+            "{{parent}}"
+          ]
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, created_at, updated_at) VALUES ('a1', 'cp1', '2026-01-05', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, created_at, updated_at) VALUES ('a2', 'cp1', '2026-01-05', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ],
+          "expect": {
+            "status": 400
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, created_at, updated_at) VALUES ('a3', 'cp2', '2026-01-05', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id FROM app_carpool__assignments",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              {
+                "id": "a1"
+              },
+              {
+                "id": "a3"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "upcoming_carpools and driver_load count only scheduled future drives on live carpools",
+      "members": {
+        "parent": "adult",
+        "other": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, created_by, created_at, archived) VALUES ('live', 'School run', ?, '2026-01-01T00:00:00Z', 0), ('old', 'Old run', ?, '2026-01-01T00:00:00Z', 1)",
+          "params": [
+            "{{parent}}",
+            "{{parent}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, status, created_at, updated_at) VALUES ('fut1', 'live', '2099-01-05', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('fut2', 'live', '2099-01-06', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('fut3', 'live', '2099-01-07', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('done', 'live', '2099-01-08', ?, 'done', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('past', 'live', '2020-01-05', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('arch', 'old', '2099-01-05', ?, 'scheduled', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": [
+            "{{parent}}",
+            "{{parent}}",
+            "{{other}}",
+            "{{parent}}",
+            "{{parent}}",
+            "{{other}}"
+          ]
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "upcoming_carpools",
+          "expect": {
+            "status": 200,
+            "rowCount": 3,
+            "rowsContain": [
+              {
+                "id": "fut1",
+                "carpool_name": "School run"
+              },
+              {
+                "id": "fut2"
+              },
+              {
+                "id": "fut3"
+              }
+            ]
+          }
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "driver_load",
+          "expect": {
+            "status": 200,
+            "rowsContain": [
+              {
+                "driver_id": "scn-parent",
+                "upcoming_drives": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
