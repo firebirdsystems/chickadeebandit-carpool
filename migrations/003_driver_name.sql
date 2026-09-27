@@ -1,0 +1,13 @@
+-- The driver's display name, for the public calendar (manifest.shareable.carpool).
+-- An assignment holds only driver_id, and a share link reads no member roster,
+-- so the name the household shows for the driver is copied here. The app writes
+-- it alongside driver_id at every write site and refreshes upcoming rows when an
+-- adult loads the app or opens the Share panel, so a rename reaches the
+-- calendar. A removed member's upcoming drives leave it at once (the hub
+-- blanks their driver_id, and the calendar query drops the name with it); the
+-- days they already drove keep their name for the feed's past month.
+--
+-- Nullable, and never ''. The encrypt codec refuses an empty string, so "no
+-- driver" or "no name" is NULL. Encrypted at rest: it is only displayed, never
+-- compared.
+ALTER TABLE app_carpool__assignments ADD COLUMN driver_name TEXT;

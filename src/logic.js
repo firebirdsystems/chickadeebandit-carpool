@@ -70,3 +70,100 @@ export function buildCalendarEvents(carpools, assignments, todayIso) {
 export function openSwap(swapRequests, assignmentId) {
   return swapRequests.find((s) => s.assignment_id === assignmentId && s.status === "open") ?? null;
 }
+
+// ── driver_name snapshot ──
+// The public carpool calendar (manifest.shareable.carpool) titles each day with
+// its driver, and a share link reads no member roster, so the driver's display
+// name is copied onto the assignment. The encrypt codec THROWS on an empty
+// string, so "no driver" or "no name" is always NULL, never "".
+
+/**
+ * The roster, with the signed-in member added when it is missing — a failed
+ * roster read leaves `members` empty, but the member taking a drive still knows
+ * their own name, and the snapshot should not go blank because of it.
+ */
+export function rosterWithSelf(members, me) {
+  const list = Array.isArray(members) ? members : [];
+  if (!me?.id || list.some((m) => m?.id === me.id)) return list;
+  return [...list, me];
+}
+
+/** The name the household shows for `driverId`, or null. */
+export function driverNameFor(members, driverId) {
+  if (!driverId) return null;
+  const member = (members ?? []).find((m) => m?.id === driverId);
+  const name = typeof member?.name === "string" ? member.name.trim() : "";
+  return name || null;
+}
+
+/**
+ * The INSERT for one generated assignment. `a.driver_name` is bound as-is, so
+ * callers set it from driverNameFor (null or a non-empty name). `orIgnore` is
+ * for extending a schedule, where a (carpool_id, date) may already exist.
+ */
+export function assignmentInsert(a, { orIgnore = false } = {}) {
+  return {
+    sql: `INSERT${orIgnore ? " OR IGNORE" : ""} INTO app_carpool__assignments (id, carpool_id, date, driver_id, driver_name, note, status, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, '', 'scheduled', ?, ?)`,
+    params: [a.id, a.carpool_id, a.date, a.driver_id, a.driver_name || null, a.created_at, a.updated_at],
+  };
+}
+
+/** The UPDATE that hands a day to `driverId` ("" = unassigned) with its name. */
+export function driverUpdate(assignmentId, driverId, members, now) {
+  const driverName = driverNameFor(members, driverId);
+  return {
+    sql: "UPDATE app_carpool__assignments SET driver_id = ?, driver_name = ?, updated_at = ? WHERE id = ?",
+    params: [driverId, driverName, now, assignmentId],
+    driverName,
+  };
+}
+
+// Rows per refresh statement, and per refresh. Assignments are generated 28
+// days at a time, so a household's upcoming rows fit well inside this; a larger
+// backlog is finished on the next load.
+export const DRIVER_NAME_REFRESH_CHUNK = 50;
+export const DRIVER_NAME_REFRESH_MAX = 200;
+
+/**
+ * The UPDATEs that bring upcoming assignments' driver_name in line with the
+ * roster: a missing snapshot, a rename, or a day whose driver the hub blanked
+ * when the member was removed (which must stop naming them). Grouped by
+ * driver, bounded, and guarded on driver_id so a concurrent reassignment is
+ * never stamped with the old driver's name.
+ *
+ * A driver_id the roster doesn't list keeps whatever name it has: an empty or
+ * failed roster read must not wipe every name.
+ */
+export function driverNameRefreshes(assignments, members, todayIso, { carpoolId = null, max = DRIVER_NAME_REFRESH_MAX } = {}) {
+  if (!Array.isArray(members) || members.length === 0) return [];
+  const known = new Set(members.map((m) => m?.id).filter(Boolean));
+  const groups = new Map();
+  let taken = 0;
+  for (const a of assignments ?? []) {
+    if (taken >= max) break;
+    if (!a?.id || !(a.date >= todayIso)) continue;
+    if (carpoolId && a.carpool_id !== carpoolId) continue;
+    const driverId = a.driver_id || "";
+    if (driverId && !known.has(driverId)) continue;
+    const want = driverNameFor(members, driverId);
+    const have = a.driver_name || null;
+    if (want === have) continue;
+    if (!groups.has(driverId)) groups.set(driverId, { driverId, driverName: want, ids: [] });
+    groups.get(driverId).ids.push(a.id);
+    taken++;
+  }
+  const out = [];
+  for (const { driverId, driverName, ids } of groups.values()) {
+    for (let i = 0; i < ids.length; i += DRIVER_NAME_REFRESH_CHUNK) {
+      const chunk = ids.slice(i, i + DRIVER_NAME_REFRESH_CHUNK);
+      out.push({
+        sql: `UPDATE app_carpool__assignments SET driver_name = ? WHERE driver_id = ? AND id IN (${chunk.map(() => "?").join(", ")})`,
+        params: [driverName, driverId, ...chunk],
+        ids: chunk,
+        driverName,
+      });
+    }
+  }
+  return out;
+}

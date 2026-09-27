@@ -80,11 +80,16 @@
 <div class="app"><div id="root" class="loading">Loading…</div></div>
 
 <script type="module">
-import { esc, initial, memberColor, hubConfirm, sendHubNotification, hubAppUrl } from "/hub-sdk.js";
+import {
+  esc, initial, memberColor, hubConfirm, sendHubNotification, hubAppUrl,
+  createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS,
+} from "/hub-sdk.js";
 import {
   canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
   buildCalendarEvents, openSwap as _openSwap,
+  driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
 } from "./logic.js";
+import { createShareUi, createOverlayView } from "./share.js";
 
 const CONTEXT    = window.__CONTEXT_URL    ?? "";
 const DB         = window.__DB_URL         ?? "";
@@ -92,6 +97,7 @@ const STORE_URL  = window.__STORE_URL      ?? "";
 const EVENTS_URL = window.__EVENTS_URL     ?? "/api/events";
 const APP_ID     = window.__APP_ID         ?? "carpool";
 const ME         = window.__CURRENT_MEMBER ?? null;
+const IS_ADMIN   = window.__IS_ADMIN === true;
 
 const HORIZON = 28; // days of schedule generated per rotation extension
 const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -109,6 +115,34 @@ let notice = "";
 let draft = { name: "", location: "", pickup_time: "16:00", weekdays: new Set(), drivers: [] };
 
 function canManage() { return _canManage(currentMember); }
+
+// External share links (manifest.shareable.carpool): a read-only page and a
+// calendar subscription for one carpool, for another family or a sitter. The
+// hub injects the URLs only when the manifest declares `shareable`, and mints
+// for adults only; whether this household allows it at all is answered by the
+// panel's first read. The calendar names each day's driver from the
+// assignment's driver_name snapshot, which is refreshed before the panel opens.
+const share = createShareHelper(window.__SHARE_CREATE_URL, window.__SHARE_REVOKE_URL, window.__SHARE_LIST_URL);
+function canShare() { return share.enabled && !!ME && canManage(); }
+const shareView = createOverlayView(document);
+const shareUi = createShareUi({
+  share,
+  itemType: "carpool",
+  noun: "carpool",
+  scopeHtml: () => "The page and calendar show the carpool’s name, pickup time and place, and each day’s driver by the name the household shows for them. Your notes, the rotation order and who else is in the household stay private. Anyone who gets the link can read it.",
+  esc,
+  confirm: (message, opts) => hubConfirm({ message, ...opts, destructive: true }),
+  writeText: (text) => navigator.clipboard.writeText(text),
+  activeLinks: activeShareLinks,
+  expiryChoices: SHARE_CALENDAR_EXPIRY_CHOICES,
+  defaultExpiryHours: DEFAULT_SHARE_EXPIRY_HOURS,
+  calendarUrl: (link) => share.calendarUrl(link),
+  getMe: () => ME,
+  isAdmin: () => IS_ADMIN,
+  memberName: (id) => memberMap.get(id)?.name ?? "",
+  view: shareView,
+});
+shareView.bind(shareUi);
 function openSwap(assignmentId) { return _openSwap(swaps, assignmentId); }
 
 const nowIso = () => new Date().toISOString();
@@ -190,6 +224,36 @@ async function refresh() {
     handleDeepLink();
     render();
   } catch (e) { error = e.message; render(); }
+  refreshDriverNames();
+}
+
+/**
+ * Copies each upcoming day's driver name onto its assignment wherever it is
+ * missing or stale (a rename, or a driver the hub blanked on removal), for the
+ * public calendar. The hub renames members, not this app, so this is how a
+ * rename reaches a shared calendar. Adults only (assignments are
+ * adult_writable); best-effort: a failed write keeps the old name and is
+ * retried on the next load. `carpoolId` narrows it to one carpool.
+ */
+async function refreshDriverNames(carpoolId = null) {
+  if (!DB || !canManage()) return;
+  const updates = driverNameRefreshes(assignments, members, today(), { carpoolId });
+  for (const u of updates) {
+    const ok = await dbq(u.sql, u.params).then(() => true, () => false);
+    if (!ok) continue;
+    const ids = new Set(u.ids);
+    for (const a of assignments) if (ids.has(a.id)) a.driver_name = u.driverName;
+  }
+}
+
+async function openShare(carpoolId) {
+  const cp = carpoolById(carpoolId);
+  if (!cp) return;
+  // The calendar reads driver_name, so fill it for this carpool before a link
+  // can be minted. A failure here is not fatal: the day still appears, titled
+  // with the carpool's name alone.
+  await refreshDriverNames(cp.id).catch(() => {});
+  shareUi.open({ id: cp.id, title: cp.name });
 }
 function handleDeepLink() {
   const id = new URLSearchParams(window.location.search).get("carpoolId");
@@ -228,19 +292,21 @@ async function createCarpool(form) {
     created_by: currentMember.id, created_by_name: currentMember.name, created_at: nowIso(), archived: 0,
   };
   const dates = upcomingDates(today(), weekdays, Math.ceil(HORIZON / 7) * weekdays.length);
-  const newAssignments = dates.map((d, i) => ({
-    id: uid("a"), carpool_id: cp.id, date: d, driver_id: rotationDriver(drivers, i),
-    note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
-  }));
+  const newAssignments = dates.map((d, i) => {
+    const driver_id = rotationDriver(drivers, i);
+    return {
+      id: uid("a"), carpool_id: cp.id, date: d, driver_id, driver_name: driverNameFor(rosterWithSelf(members, currentMember), driver_id),
+      note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
+    };
+  });
   try {
     if (DB) {
       await dbq(`INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
         [cp.id, cp.name, cp.description, cp.location, cp.pickup_time, cp.weekdays, cp.driver_order, cp.created_by, cp.created_by_name, cp.created_at]);
       for (const a of newAssignments) {
-        await dbq(`INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, note, status, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, '', 'scheduled', ?, ?)`,
-          [a.id, a.carpool_id, a.date, a.driver_id, a.created_at, a.updated_at]);
+        const ins = assignmentInsert(a);
+        await dbq(ins.sql, ins.params);
       }
     }
     carpools = [...carpools, cp];
@@ -268,16 +334,18 @@ async function extendSchedule(carpoolId) {
   const startFrom = addDays(lastDate, 1);
   const dates = upcomingDates(startFrom, weekdays, Math.ceil(HORIZON / 7) * Math.max(1, weekdays.length));
   const offset = existing.length;
-  const created = dates.map((d, i) => ({
-    id: uid("a"), carpool_id: carpoolId, date: d, driver_id: rotationDriver(order, offset + i),
-    note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
-  }));
+  const created = dates.map((d, i) => {
+    const driver_id = rotationDriver(order, offset + i);
+    return {
+      id: uid("a"), carpool_id: carpoolId, date: d, driver_id, driver_name: driverNameFor(rosterWithSelf(members, currentMember), driver_id),
+      note: "", status: "scheduled", created_at: nowIso(), updated_at: nowIso(),
+    };
+  });
   if (!created.length) { showNotice("Nothing to add yet."); return; }
   try {
     if (DB) for (const a of created) {
-      await dbq(`INSERT OR IGNORE INTO app_carpool__assignments (id, carpool_id, date, driver_id, note, status, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, '', 'scheduled', ?, ?)`,
-        [a.id, a.carpool_id, a.date, a.driver_id, a.created_at, a.updated_at]);
+      const ins = assignmentInsert(a, { orIgnore: true });
+      await dbq(ins.sql, ins.params);
     }
     assignments = [...assignments, ...created];
     showNotice(`Added ${created.length} more driving days.`);
@@ -288,8 +356,9 @@ async function extendSchedule(carpoolId) {
 async function reassign(assignmentId, driverId) {
   if (!canManage()) return;
   try {
-    if (DB) await dbq("UPDATE app_carpool__assignments SET driver_id = ?, updated_at = ? WHERE id = ?", [driverId, nowIso(), assignmentId]);
-    patchAssignment(assignmentId, { driver_id: driverId });
+    const upd = driverUpdate(assignmentId, driverId, rosterWithSelf(members, currentMember), nowIso());
+    if (DB) await dbq(upd.sql, upd.params);
+    patchAssignment(assignmentId, { driver_id: driverId, driver_name: upd.driverName });
     render();
     syncCalendar();
   } catch (e) { showError(e.message); }
@@ -324,11 +393,12 @@ async function acceptSwap(assignmentId) {
   const ok = await hubConfirm({ message: `Cover this drive on ${fmtDay(a.date)}?`, confirmLabel: "Cover it" });
   if (!ok) return;
   try {
+    const upd = driverUpdate(assignmentId, currentMember.id, rosterWithSelf(members, currentMember), nowIso());
     if (DB) {
-      await dbq("UPDATE app_carpool__assignments SET driver_id = ?, updated_at = ? WHERE id = ?", [currentMember.id, nowIso(), assignmentId]);
+      await dbq(upd.sql, upd.params);
       await dbq("UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ?", [currentMember.id, nowIso(), req.id]);
     }
-    patchAssignment(assignmentId, { driver_id: currentMember.id });
+    patchAssignment(assignmentId, { driver_id: currentMember.id, driver_name: upd.driverName });
     swaps = swaps.filter(s => s.id !== req.id);
     render();
     showNotice("You're covering this drive.");
@@ -486,6 +556,7 @@ function renderDetail() {
       <div class="head">
         <div><h1>${esc(cp.name)}</h1><p class="muted">${esc(days)}${cp.pickup_time ? ` · pickup ${esc(cp.pickup_time)}` : ""}${cp.location ? ` · ${esc(cp.location)}` : ""}</p></div>
         <div class="tools">
+          ${canShare() ? `<button class="btn btn-ghost btn-sm" data-share-carpool="${esc(cp.id)}" data-testid="carpool-share">Share</button>` : ""}
           ${canManage() ? `<button class="btn btn-ghost btn-sm" data-extend="${esc(cp.id)}">Extend</button>` : ""}
           ${canManage() ? `<button class="btn btn-quiet-danger" data-archive="${esc(cp.id)}">Archive</button>` : ""}
         </div>
@@ -538,6 +609,7 @@ document.addEventListener("click", (event) => {
   if (t.hasAttribute("data-tab")) { view = t.getAttribute("data-tab"); selectedCarpoolId = null; clearMessages(); render(); return; }
   if (t.matches("[data-refresh]")) { refresh(); return; }
   if (t.hasAttribute("data-weekday")) { toggleWeekday(Number(t.getAttribute("data-weekday"))); return; }
+  if (t.hasAttribute("data-share-carpool")) { openShare(t.getAttribute("data-share-carpool")); return; }
   if (t.hasAttribute("data-extend")) { extendSchedule(t.getAttribute("data-extend")); return; }
   if (t.hasAttribute("data-archive")) { archiveCarpool(t.getAttribute("data-archive")); return; }
   if (t.hasAttribute("data-request-swap")) { requestSwap(t.getAttribute("data-request-swap")); return; }

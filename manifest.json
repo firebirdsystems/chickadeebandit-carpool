@@ -21,7 +21,7 @@
     "carpools": {"sql": "SELECT * FROM app_carpool__carpools WHERE archived = 0 ORDER BY created_at ASC"},
     "swap_requests": {"sql": "SELECT * FROM app_carpool__swap_requests WHERE status = 'open'"}
   },
-  "db_plaintext_columns": ["date", "pickup_time"],
+  "db_plaintext_columns": ["date", "pickup_time", "archived"],
   "row_policies": {
     "carpools": {
       "kind": "adult_writable"
@@ -31,6 +31,24 @@
     },
     "swap_requests": {
       "kind": "adult_writable"
+    }
+  },
+  "shareable": {
+    "carpool": {
+      "table": "carpools",
+      "title_column": "name",
+      "columns": [
+        { "column": "location", "label": "Where" },
+        { "column": "pickup_time", "label": "Pickup" }
+      ],
+      "visible_where": { "column": "archived", "values": ["0"] },
+      "calendar": {
+        "title_prefix_from_item": true,
+        "source": {
+          "kind": "sql",
+          "query": "SELECT a.id AS uid, CASE WHEN a.driver_id != '' THEN a.driver_name END AS title, a.date AS start_date, c.pickup_time AS start_time, c.location AS location FROM app_carpool__assignments a JOIN app_carpool__carpools c ON c.id = a.carpool_id AND c.archived = 0 WHERE a.carpool_id = :item_id AND a.date BETWEEN :range_start AND :range_end AND a.status != 'skipped' ORDER BY a.date LIMIT 2000"
+        }
+      }
     }
   },
   "exports": ["calendar_events"],
