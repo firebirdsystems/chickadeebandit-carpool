@@ -471,7 +471,7 @@ function renderCarpoolCard(cp) {
   const next = carpoolAssignments(cp.id).find(a => a.date >= today() && a.status === "scheduled");
   const days = parseWeekdays(cp.weekdays).map(d => WD[d]).join(" · ");
   return `
-    <article class="card cp-card" data-open="${esc(cp.id)}">
+    <article class="card cp-card" data-open="${esc(cp.id)}" data-testid="carpool-card" data-carpool-id="${esc(cp.id)}">
       <div class="head">
         <div>
           <div class="title">${esc(cp.name)}</div>
@@ -524,18 +524,18 @@ function renderAssignment(a) {
   if (a.status === "scheduled" && !past) {
     if (sw) {
       const canCover = canManage() && sw.requested_by !== currentMember?.id;
-      swapUi = `<span class="pill warn">Swap needed</span>${canCover ? `<button class="btn btn-sm" data-accept-swap="${esc(a.id)}">Cover it</button>` : ""}`;
+      swapUi = `<span class="pill warn">Swap needed</span>${canCover ? `<button class="btn btn-sm" data-accept-swap="${esc(a.id)}" data-testid="accept-swap" data-assignment-id="${esc(a.id)}">Cover it</button>` : ""}`;
     } else if (isDriver) {
-      swapUi = `<button class="btn btn-ghost btn-sm" data-request-swap="${esc(a.id)}">Request swap</button>`;
+      swapUi = `<button class="btn btn-ghost btn-sm" data-request-swap="${esc(a.id)}" data-testid="request-swap" data-assignment-id="${esc(a.id)}">Request swap</button>`;
     }
   }
   return `
-    <div class="row">
+    <div class="row" data-testid="assignment-row" data-assignment-id="${esc(a.id)}" data-swap="${sw ? "open" : "none"}">
       <div class="row-top">
         <div class="date-badge">${esc(fmtDay(a.date))} ${a.status !== "scheduled" ? `<span class="pill">${esc(a.status)}</span>` : ""}</div>
         <div class="actions">
           ${canManage() && !past
-            ? `<select class="inline" data-reassign="${esc(a.id)}"><option value="">Unassigned</option>${opts}</select>`
+            ? `<select class="inline" data-reassign="${esc(a.id)}" data-testid="reassign-driver" data-assignment-id="${esc(a.id)}"><option value="">Unassigned</option>${opts}</select>`
             : driverChip(a.driver_id)}
           ${swapUi}
           ${canManage() && a.status === "scheduled" ? `<button class="btn btn-quiet-danger" data-skip="${esc(a.id)}">Skip</button>` : ""}

@@ -1,0 +1,44 @@
+{
+  "scenarios": [
+    {
+      "name": "an open swap offers Cover it to another adult, never to its requester or a child",
+      "members": { "driver": "adult", "kid": "child", "helper": "admin" },
+      "steps": [
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, pickup_time, weekdays, driver_order, created_by, created_at, archived) VALUES ('cp-ui', ?, '15:30', ?, ?, ?, '2026-08-01T09:00:00Z', 0)",
+          "params": ["Swim Team Run", "1,3", "[]", "{{driver}}"] },
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, status, created_at, updated_at) VALUES ('a-swap', 'cp-ui', date('now', '+7 day'), ?, 'scheduled', '2026-08-01T09:00:00Z', '2026-08-01T09:00:00Z'), ('a-plain', 'cp-ui', date('now', '+8 day'), ?, 'scheduled', '2026-08-01T09:00:00Z', '2026-08-01T09:00:00Z')",
+          "params": ["{{driver}}", "{{driver}}"] },
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, status, created_at, updated_at) VALUES ('sw-ui', 'cp-ui', 'a-swap', ?, 'open', '2026-08-01T10:00:00Z', '2026-08-01T10:00:00Z')",
+          "params": ["{{driver}}"] },
+
+        { "action": "open", "as": "driver" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-swap\"][data-swap=\"open\"]" },
+        { "action": "expectCount", "as": "driver", "selector": "[data-testid=\"accept-swap\"][data-assignment-id=\"a-swap\"]", "count": 0 },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"request-swap\"][data-assignment-id=\"a-plain\"]" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"reassign-driver\"][data-assignment-id=\"a-swap\"]" },
+
+        { "action": "open", "as": "helper" },
+        { "action": "expectVisible", "as": "helper", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "click", "as": "helper", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "expectVisible", "as": "helper", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-swap\"][data-swap=\"open\"]" },
+        { "action": "expectVisible", "as": "helper", "selector": "[data-testid=\"accept-swap\"][data-assignment-id=\"a-swap\"]" },
+        { "action": "expectVisible", "as": "helper", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-plain\"][data-swap=\"none\"]" },
+        { "action": "expectCount", "as": "helper", "selector": "[data-testid=\"request-swap\"][data-assignment-id=\"a-plain\"]", "count": 0 },
+
+        { "action": "open", "as": "kid" },
+        { "action": "expectVisible", "as": "kid", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "click", "as": "kid", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-ui\"]" },
+        { "action": "expectVisible", "as": "kid", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-swap\"][data-swap=\"open\"]" },
+        { "action": "expectCount", "as": "kid", "selector": "[data-testid=\"accept-swap\"][data-assignment-id=\"a-swap\"]", "count": 0 },
+        { "action": "expectVisible", "as": "kid", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-plain\"][data-swap=\"none\"]" },
+        { "action": "expectCount", "as": "kid", "selector": "[data-testid=\"reassign-driver\"]", "count": 0 },
+        { "action": "expectText", "as": "kid", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-plain\"]", "text": "E2E carpool-driver" }
+      ]
+    }
+  ]
+}
