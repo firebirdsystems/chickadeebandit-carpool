@@ -82,7 +82,7 @@
 <script type="module">
 import {
   esc, initial, memberColor, hubConfirm, sendHubNotification, hubAppUrl,
-  createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS,
+  createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS, glyph,
 } from "/hub-sdk.js";
 import {
   canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
@@ -131,6 +131,7 @@ const shareUi = createShareUi({
   noun: "carpool",
   scopeHtml: () => "The page and calendar show the carpool’s name, pickup time and place, and each day’s driver by the name the household shows for them. Your notes, the rotation order and who else is in the household stay private. Anyone who gets the link can read it.",
   esc,
+  glyph,
   confirm: (message, opts) => hubConfirm({ message, ...opts, destructive: true }),
   writeText: (text) => navigator.clipboard.writeText(text),
   activeLinks: activeShareLinks,
