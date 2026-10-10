@@ -1,0 +1,1417 @@
+{
+ "seed": [
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-120 days'), ?)",
+   "params": [
+    "perf-cp-1",
+    "Morning School Run",
+    "Shared rotation for morning school run.",
+    "Lincoln Elementary, front loop",
+    "07:45",
+    "1,2,3,4,5",
+    "[]",
+    "{{me}}",
+    "Perf Admin",
+    0
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-100 days'), ?)",
+   "params": [
+    "perf-cp-2",
+    "Soccer Practice",
+    "Shared rotation for soccer practice.",
+    "Riverside Fields, lot B",
+    "16:30",
+    "2,4",
+    "[]",
+    "{{partner}}",
+    "Perf Partner",
+    0
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-80 days'), ?)",
+   "params": [
+    "perf-cp-3",
+    "Swim Team Run",
+    "Shared rotation for swim team run.",
+    "Aquatic Center",
+    "15:30",
+    "1,3",
+    "[]",
+    "{{me}}",
+    "Perf Admin",
+    0
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), ?)",
+   "params": [
+    "perf-cp-4",
+    "Saturday Robotics Club",
+    "Shared rotation for saturday robotics club.",
+    "Maker Lab, 4th Street",
+    "09:00",
+    "6",
+    "[]",
+    "{{adult2}}",
+    "Perf Neighbour",
+    0
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-45 days'), ?)",
+   "params": [
+    "perf-cp-5",
+    "Piano Lessons",
+    "Shared rotation for piano lessons.",
+    "Ms. Alvarez studio",
+    "17:15",
+    "3",
+    "[]",
+    "{{me}}",
+    "Perf Admin",
+    0
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__carpools (id, name, description, location, pickup_time, weekdays, driver_order, created_by, created_by_name, created_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-150 days'), ?)",
+   "params": [
+    "perf-cp-6",
+    "Summer Day Camp",
+    "Shared rotation for summer day camp.",
+    "Community Center",
+    "08:30",
+    "1,2,3,4,5",
+    "[]",
+    "{{partner}}",
+    "Perf Partner",
+    1
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-11 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-001",
+    "perf-cp-1",
+    "{{date:-11}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-10 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-002",
+    "perf-cp-1",
+    "{{date:-10}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-9 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-003",
+    "perf-cp-1",
+    "{{date:-9}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-8 days'), ?, ?)",
+   "params": [
+    "perf-as-004",
+    "perf-cp-1",
+    "{{date:-8}}",
+    "done",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-7 days'), ?, ?)",
+   "params": [
+    "perf-as-005",
+    "perf-cp-1",
+    "{{date:-7}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-6 days'), ?, ?)",
+   "params": [
+    "perf-as-006",
+    "perf-cp-1",
+    "{{date:-6}}",
+    "skipped",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-5 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-007",
+    "perf-cp-1",
+    "{{date:-5}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-4 days'), ?)",
+   "params": [
+    "perf-as-008",
+    "perf-cp-1",
+    "{{date:-4}}",
+    "done",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-3 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-009",
+    "perf-cp-1",
+    "{{date:-3}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-2 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-010",
+    "perf-cp-1",
+    "{{date:-2}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-011",
+    "perf-cp-1",
+    "{{date:-1}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-012",
+    "perf-cp-1",
+    "{{date:0}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-013",
+    "perf-cp-1",
+    "{{date:1}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-014",
+    "perf-cp-1",
+    "{{date:2}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-015",
+    "perf-cp-1",
+    "{{date:3}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-016",
+    "perf-cp-1",
+    "{{date:4}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-017",
+    "perf-cp-1",
+    "{{date:5}}",
+    "scheduled",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-018",
+    "perf-cp-1",
+    "{{date:6}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-019",
+    "perf-cp-1",
+    "{{date:7}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-020",
+    "perf-cp-1",
+    "{{date:8}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-021",
+    "perf-cp-1",
+    "{{date:9}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-022",
+    "perf-cp-1",
+    "{{date:10}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-023",
+    "perf-cp-1",
+    "{{date:11}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-024",
+    "perf-cp-1",
+    "{{date:12}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-025",
+    "perf-cp-1",
+    "{{date:13}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'))",
+   "params": [
+    "perf-as-026",
+    "perf-cp-1",
+    "{{date:14}}",
+    "scheduled"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-027",
+    "perf-cp-1",
+    "{{date:15}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-028",
+    "perf-cp-1",
+    "{{date:16}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-029",
+    "perf-cp-1",
+    "{{date:17}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-030",
+    "perf-cp-1",
+    "{{date:18}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-031",
+    "perf-cp-1",
+    "{{date:19}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-032",
+    "perf-cp-1",
+    "{{date:20}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-033",
+    "perf-cp-1",
+    "{{date:21}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-034",
+    "perf-cp-1",
+    "{{date:22}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-20 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-035",
+    "perf-cp-2",
+    "{{date:-20}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-17 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-036",
+    "perf-cp-2",
+    "{{date:-17}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-14 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-037",
+    "perf-cp-2",
+    "{{date:-14}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-11 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-038",
+    "perf-cp-2",
+    "{{date:-11}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-8 days'), ?, ?)",
+   "params": [
+    "perf-as-039",
+    "perf-cp-2",
+    "{{date:-8}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-5 days'), ?, ?)",
+   "params": [
+    "perf-as-040",
+    "perf-cp-2",
+    "{{date:-5}}",
+    "skipped",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-2 days'), ?, ?)",
+   "params": [
+    "perf-as-041",
+    "perf-cp-2",
+    "{{date:-2}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-042",
+    "perf-cp-2",
+    "{{date:1}}",
+    "scheduled",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-043",
+    "perf-cp-2",
+    "{{date:4}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-044",
+    "perf-cp-2",
+    "{{date:7}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-045",
+    "perf-cp-2",
+    "{{date:10}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-046",
+    "perf-cp-2",
+    "{{date:13}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-047",
+    "perf-cp-2",
+    "{{date:16}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-048",
+    "perf-cp-2",
+    "{{date:19}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-049",
+    "perf-cp-2",
+    "{{date:22}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-050",
+    "perf-cp-2",
+    "{{date:25}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-051",
+    "perf-cp-2",
+    "{{date:28}}",
+    "scheduled",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-052",
+    "perf-cp-2",
+    "{{date:31}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-053",
+    "perf-cp-2",
+    "{{date:34}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-054",
+    "perf-cp-2",
+    "{{date:37}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-055",
+    "perf-cp-2",
+    "{{date:40}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-056",
+    "perf-cp-2",
+    "{{date:43}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-20 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-057",
+    "perf-cp-3",
+    "{{date:-20}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-17 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-058",
+    "perf-cp-3",
+    "{{date:-17}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-14 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-059",
+    "perf-cp-3",
+    "{{date:-14}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-11 days'), ?, ?)",
+   "params": [
+    "perf-as-060",
+    "perf-cp-3",
+    "{{date:-11}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-8 days'), ?, ?)",
+   "params": [
+    "perf-as-061",
+    "perf-cp-3",
+    "{{date:-8}}",
+    "done",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-5 days'), ?, ?)",
+   "params": [
+    "perf-as-062",
+    "perf-cp-3",
+    "{{date:-5}}",
+    "skipped",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-2 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-063",
+    "perf-cp-3",
+    "{{date:-2}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-064",
+    "perf-cp-3",
+    "{{date:1}}",
+    "scheduled",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-065",
+    "perf-cp-3",
+    "{{date:4}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-066",
+    "perf-cp-3",
+    "{{date:7}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-067",
+    "perf-cp-3",
+    "{{date:10}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-068",
+    "perf-cp-3",
+    "{{date:13}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-069",
+    "perf-cp-3",
+    "{{date:16}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-070",
+    "perf-cp-3",
+    "{{date:19}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-071",
+    "perf-cp-3",
+    "{{date:22}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-072",
+    "perf-cp-3",
+    "{{date:25}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-073",
+    "perf-cp-3",
+    "{{date:28}}",
+    "scheduled",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-074",
+    "perf-cp-3",
+    "{{date:31}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-075",
+    "perf-cp-3",
+    "{{date:34}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-076",
+    "perf-cp-3",
+    "{{date:37}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-077",
+    "perf-cp-3",
+    "{{date:40}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-078",
+    "perf-cp-3",
+    "{{date:43}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-28 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-079",
+    "perf-cp-4",
+    "{{date:-28}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-21 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-080",
+    "perf-cp-4",
+    "{{date:-21}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-14 days'), ?, ?)",
+   "params": [
+    "perf-as-081",
+    "perf-cp-4",
+    "{{date:-14}}",
+    "done",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-7 days'), ?, ?)",
+   "params": [
+    "perf-as-082",
+    "perf-cp-4",
+    "{{date:-7}}",
+    "done",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-083",
+    "perf-cp-4",
+    "{{date:0}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-084",
+    "perf-cp-4",
+    "{{date:7}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-085",
+    "perf-cp-4",
+    "{{date:14}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-086",
+    "perf-cp-4",
+    "{{date:21}}",
+    "scheduled",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-087",
+    "perf-cp-4",
+    "{{date:28}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-088",
+    "perf-cp-4",
+    "{{date:35}}",
+    "scheduled",
+    "{{adult2}}",
+    "Perf Neighbour"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-089",
+    "perf-cp-4",
+    "{{date:42}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-090",
+    "perf-cp-4",
+    "{{date:49}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-28 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-091",
+    "perf-cp-5",
+    "{{date:-28}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-21 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-092",
+    "perf-cp-5",
+    "{{date:-21}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-14 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-093",
+    "perf-cp-5",
+    "{{date:-14}}",
+    "done",
+    "{{me}}",
+    "Perf Admin",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-7 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-094",
+    "perf-cp-5",
+    "{{date:-7}}",
+    "done",
+    "{{partner}}",
+    "Perf Partner",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-095",
+    "perf-cp-5",
+    "{{date:0}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-096",
+    "perf-cp-5",
+    "{{date:7}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-097",
+    "perf-cp-5",
+    "{{date:14}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?)",
+   "params": [
+    "perf-as-098",
+    "perf-cp-5",
+    "{{date:21}}",
+    "scheduled",
+    "Bring the booster seat"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-099",
+    "perf-cp-5",
+    "{{date:28}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Early dismissal today"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-100",
+    "perf-cp-5",
+    "{{date:35}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner",
+    "Pick up Jonah too"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name, note) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?, ?)",
+   "params": [
+    "perf-as-101",
+    "perf-cp-5",
+    "{{date:42}}",
+    "scheduled",
+    "{{me}}",
+    "Perf Admin",
+    "Game day, cleats in the trunk"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, status, created_at, updated_at, driver_id, driver_name) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-60 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), ?, ?)",
+   "params": [
+    "perf-as-102",
+    "perf-cp-5",
+    "{{date:49}}",
+    "scheduled",
+    "{{partner}}",
+    "Perf Partner"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-1 days'), strftime('%Y-%m-%dT12:00:00Z','now','-1 days'))",
+   "params": [
+    "perf-sw-1",
+    "perf-cp-1",
+    "perf-as-014",
+    "{{partner}}",
+    "Dentist appointment that afternoon",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-2 days'), strftime('%Y-%m-%dT12:00:00Z','now','-2 days'))",
+   "params": [
+    "perf-sw-2",
+    "perf-cp-1",
+    "perf-as-015",
+    "{{adult2}}",
+    "Out of town for work",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-3 days'), strftime('%Y-%m-%dT12:00:00Z','now','-3 days'))",
+   "params": [
+    "perf-sw-3",
+    "perf-cp-1",
+    "perf-as-029",
+    "{{partner}}",
+    "Car is in the shop",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-4 days'), strftime('%Y-%m-%dT12:00:00Z','now','-4 days'))",
+   "params": [
+    "perf-sw-4",
+    "perf-cp-1",
+    "perf-as-021",
+    "{{adult2}}",
+    "Late meeting, can anyone cover?",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-5 days'), strftime('%Y-%m-%dT12:00:00Z','now','-5 days'))",
+   "params": [
+    "perf-sw-5",
+    "perf-cp-1",
+    "perf-as-016",
+    "{{me}}",
+    "Parent-teacher conference",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-6 days'), strftime('%Y-%m-%dT12:00:00Z','now','-6 days'))",
+   "params": [
+    "perf-sw-6",
+    "perf-cp-2",
+    "perf-as-045",
+    "{{partner}}",
+    "Flight lands at 5",
+    "open"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-15 days'), strftime('%Y-%m-%dT12:00:00Z','now','-13 days'))",
+   "params": [
+    "perf-sw-7",
+    "perf-cp-1",
+    "perf-as-001",
+    "{{me}}",
+    "Dentist appointment that afternoon",
+    "accepted",
+    "{{me}}"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-12 days'), strftime('%Y-%m-%dT12:00:00Z','now','-10 days'))",
+   "params": [
+    "perf-sw-8",
+    "perf-cp-1",
+    "perf-as-004",
+    "{{partner}}",
+    "Out of town for work",
+    "accepted",
+    "{{me}}"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-7 days'), strftime('%Y-%m-%dT12:00:00Z','now','-5 days'))",
+   "params": [
+    "perf-sw-9",
+    "perf-cp-1",
+    "perf-as-009",
+    "{{me}}",
+    "Car is in the shop",
+    "cancelled"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-18 days'), strftime('%Y-%m-%dT12:00:00Z','now','-16 days'))",
+   "params": [
+    "perf-sw-10",
+    "perf-cp-2",
+    "perf-as-037",
+    "{{partner}}",
+    "Late meeting, can anyone cover?",
+    "accepted",
+    "{{partner}}"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-24 days'), strftime('%Y-%m-%dT12:00:00Z','now','-22 days'))",
+   "params": [
+    "perf-sw-11",
+    "perf-cp-3",
+    "perf-as-057",
+    "{{me}}",
+    "Parent-teacher conference",
+    "accepted",
+    "{{me}}"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-15 days'), strftime('%Y-%m-%dT12:00:00Z','now','-13 days'))",
+   "params": [
+    "perf-sw-12",
+    "perf-cp-3",
+    "perf-as-060",
+    "{{partner}}",
+    "Flight lands at 5",
+    "cancelled"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-25 days'), strftime('%Y-%m-%dT12:00:00Z','now','-23 days'))",
+   "params": [
+    "perf-sw-13",
+    "perf-cp-4",
+    "perf-as-080",
+    "{{me}}",
+    "Dentist appointment that afternoon",
+    "accepted",
+    "{{partner}}"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT12:00:00Z','now','-32 days'), strftime('%Y-%m-%dT12:00:00Z','now','-30 days'))",
+   "params": [
+    "perf-sw-14",
+    "perf-cp-5",
+    "perf-as-091",
+    "{{partner}}",
+    "Out of town for work",
+    "accepted",
+    "{{me}}"
+   ]
+  }
+ ]
+}
