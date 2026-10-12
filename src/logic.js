@@ -71,6 +71,37 @@ export function openSwap(swapRequests, assignmentId) {
   return swapRequests.find((s) => s.assignment_id === assignmentId && s.status === "open") ?? null;
 }
 
+// ── writes that can miss ──
+// The hub answers 200 to an UPDATE that matched no row, so a thrown error is
+// not the only way a write fails: `changed` is the answer.
+
+/** True when a write reached exactly one row. */
+export function wroteOne(res) {
+  return Number(res?.changed) === 1;
+}
+
+/**
+ * The UPDATE that claims an open swap request for `memberId`. Guarded on the
+ * request still being open, so of two adults tapping at once exactly one wins.
+ */
+export function swapClaim(requestId, memberId, now) {
+  return {
+    sql: "UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ? AND status = 'open'",
+    params: [memberId, now, requestId],
+  };
+}
+
+/**
+ * The UPDATE that withdraws a swap request. Guarded the same way: a request
+ * someone has already covered stays covered, and its record stays "accepted".
+ */
+export function swapCancel(requestId, now) {
+  return {
+    sql: "UPDATE app_carpool__swap_requests SET status = 'cancelled', updated_at = ? WHERE id = ? AND status = 'open'",
+    params: [now, requestId],
+  };
+}
+
 // ── driver_name snapshot ──
 // The public carpool calendar (manifest.shareable.carpool) titles each day with
 // its driver, and a share link reads no member roster, so the driver's display

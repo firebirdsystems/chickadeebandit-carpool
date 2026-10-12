@@ -70,6 +70,8 @@
     .driver-opt input { width: auto; }
     .empty, .loading { color: var(--muted); text-align: center; padding: 32px 16px; }
     .error { background: var(--red-soft); color: var(--red); padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; font-size: .86rem; }
+    .load-error { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .load-error-retry { background: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px 10px; font: inherit; font-weight: 600; color: inherit; cursor: pointer; flex-shrink: 0; }
     .notice { background: var(--green-soft); color: var(--green); padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; font-size: .86rem; }
     @media (min-width: 700px) { .grid.two { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 560px) { .topbar, .head { align-items: stretch; flex-direction: column; } }
@@ -88,6 +90,7 @@ import {
   canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
   buildCalendarEvents, openSwap as _openSwap,
   driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
+  wroteOne, swapClaim, swapCancel,
 } from "./logic.js";
 import { createShareUi, createOverlayView } from "./share.js";
 
@@ -111,6 +114,7 @@ let swaps = [];
 let selectedCarpoolId = null;
 let view = "carpools"; // carpools | mine | create
 let error = "";
+let loadFailed = false; // a load failed; cleared when one succeeds
 let notice = "";
 let draft = { name: "", location: "", pickup_time: "16:00", weekdays: new Set(), drivers: [] };
 
@@ -162,8 +166,8 @@ function carpoolAssignments(id) { return assignments.filter(a => a.carpool_id ==
 async function dbq(sql, params = []) {
   if (!DB) return { rows: [] };
   const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || "Couldn’t reach the hub. Try again.");
   return json;
 }
 function publish(type, subject_id, payload) {
@@ -180,8 +184,13 @@ async function loadMembers() {
       { id: "demo-4", name: "Riley", role: "child" },
     ];
   } else {
-    try { const res = await fetch(`${CONTEXT}?keys=family.members`); members = ((await res.json())["family.members"]) ?? []; }
-    catch { members = []; }
+    // A roster that could not be read is a failed load, not an empty household.
+    const res = await fetch(`${CONTEXT}?keys=family.members`);
+    const json = await res.json().catch(() => null);
+    if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error("Couldn’t reach the hub. Try again.");
+    // The hub answers 200 and names a key it could not resolve in `$errors`.
+    if (Array.isArray(json.$errors) && json.$errors.includes("family.members")) throw new Error("context: family.members did not resolve");
+    members = json["family.members"] ?? [];
   }
   memberMap = new Map(members.map(m => [m.id, m]));
   currentMember = ME ?? members[0] ?? { id: "guest", name: "Guest", role: "adult" };
@@ -221,10 +230,11 @@ async function refresh() {
   clearMessages();
   try {
     await Promise.all([loadMembers(), loadData()]);
+    loadFailed = false;
     if (selectedCarpoolId && !carpools.some(c => c.id === selectedCarpoolId)) selectedCarpoolId = null;
     handleDeepLink();
     render();
-  } catch (e) { error = e.message; render(); }
+  } catch { loadFailed = true; render(); }
   refreshDriverNames();
 }
 
@@ -263,6 +273,18 @@ function handleDeepLink() {
 function clearMessages() { error = ""; notice = ""; }
 function showError(m) { error = m; notice = ""; render(); }
 function showNotice(m) { notice = m; error = ""; render(); }
+/**
+ * A write that changed nothing: what is on screen is out of date, so re-read it
+ * and say what did not happen. A failed re-read keeps the page as it was — the
+ * message is still true.
+ */
+async function staleWrite(message) {
+  try {
+    await loadData();
+    if (selectedCarpoolId && !carpools.some(c => c.id === selectedCarpoolId)) selectedCarpoolId = null;
+  } catch { /* keep what is on screen */ }
+  showError(message);
+}
 
 async function syncCalendar() {
   if (!STORE_URL || !DB) return;
@@ -358,8 +380,9 @@ async function reassign(assignmentId, driverId) {
   if (!canManage()) return;
   try {
     const upd = driverUpdate(assignmentId, driverId, rosterWithSelf(members, currentMember), nowIso());
-    if (DB) await dbq(upd.sql, upd.params);
+    if (DB && !wroteOne(await dbq(upd.sql, upd.params))) return staleWrite("The driver wasn’t changed. Try again.");
     patchAssignment(assignmentId, { driver_id: driverId, driver_name: upd.driverName });
+    clearMessages();
     render();
     syncCalendar();
   } catch (e) { showError(e.message); }
@@ -396,8 +419,23 @@ async function acceptSwap(assignmentId) {
   try {
     const upd = driverUpdate(assignmentId, currentMember.id, rosterWithSelf(members, currentMember), nowIso());
     if (DB) {
-      await dbq(upd.sql, upd.params);
-      await dbq("UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ?", [currentMember.id, nowIso(), req.id]);
+      // The request is claimed first, and only while it is still open: two
+      // adults can tap at the same moment, and the WHERE lets exactly one of
+      // them win. A refused claim still answers 200, so `changed` is the answer.
+      const claim = swapClaim(req.id, currentMember.id, nowIso());
+      if (!wroteOne(await dbq(claim.sql, claim.params))) {
+        // The request is known to be closed even when the re-read fails, so it
+        // is not left on screen offering a drive that is already taken.
+        try { await loadData(); } catch { swaps = swaps.filter(s => s.id !== req.id); }
+        return showError("Someone else is already covering this drive.");
+      }
+      try {
+        if (!wroteOne(await dbq(upd.sql, upd.params))) throw new Error("The driver wasn’t changed. Try again.");
+      } catch (e) {
+        // The drive never changed hands, so the request goes back to open.
+        await dbq("UPDATE app_carpool__swap_requests SET status = 'open', resolved_by = '', updated_at = ? WHERE id = ?", [nowIso(), req.id]).catch(() => {});
+        throw e;
+      }
     }
     patchAssignment(assignmentId, { driver_id: currentMember.id, driver_name: upd.driverName });
     swaps = swaps.filter(s => s.id !== req.id);
@@ -413,8 +451,10 @@ async function cancelSwap(assignmentId) {
   if (!req) return;
   if (req.requested_by !== currentMember?.id && !canManage()) return;
   try {
-    if (DB) await dbq("UPDATE app_carpool__swap_requests SET status = 'cancelled', updated_at = ? WHERE id = ?", [nowIso(), req.id]);
+    const cancel = swapCancel(req.id, nowIso());
+    if (DB && !wroteOne(await dbq(cancel.sql, cancel.params))) return staleWrite("This swap request is no longer open.");
     swaps = swaps.filter(s => s.id !== req.id);
+    clearMessages();
     render();
   } catch (e) { showError(e.message); }
 }
@@ -422,8 +462,11 @@ async function cancelSwap(assignmentId) {
 async function setStatus(assignmentId, status) {
   if (!canManage()) return;
   try {
-    if (DB) await dbq("UPDATE app_carpool__assignments SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), assignmentId]);
+    if (DB && !wroteOne(await dbq("UPDATE app_carpool__assignments SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), assignmentId]))) {
+      return staleWrite("This day wasn’t updated. Try again.");
+    }
     patchAssignment(assignmentId, { status });
+    clearMessages();
     render();
     syncCalendar();
   } catch (e) { showError(e.message); }
@@ -434,7 +477,9 @@ async function archiveCarpool(carpoolId) {
   const ok = await hubConfirm({ message: "Archive this carpool?", description: "It stops appearing on the schedule and calendar. Existing days are kept.", confirmLabel: "Archive", destructive: true });
   if (!ok) return;
   try {
-    if (DB) await dbq("UPDATE app_carpool__carpools SET archived = 1 WHERE id = ?", [carpoolId]);
+    if (DB && !wroteOne(await dbq("UPDATE app_carpool__carpools SET archived = 1 WHERE id = ?", [carpoolId]))) {
+      return staleWrite("The carpool wasn’t archived. Try again.");
+    }
     carpools = carpools.filter(c => c.id !== carpoolId);
     selectedCarpoolId = null;
     showNotice("Carpool archived.");
@@ -457,7 +502,7 @@ function toggleDriver(id) {
 }
 
 // ── render ──
-function renderMessages() { return `${error ? `<div class="error">${esc(error)}</div>` : ""}${notice ? `<div class="notice">${esc(notice)}</div>` : ""}`; }
+function renderMessages() { return `${loadFailed ? `<div class="load-error" data-testid="load-error" role="alert"><span>Couldn’t load carpools.</span> <button type="button" class="load-error-retry" data-testid="load-retry">Try again</button></div>` : ""}${error ? `<div class="error" data-testid="error">${esc(error)}</div>` : ""}${notice ? `<div class="notice" data-testid="notice">${esc(notice)}</div>` : ""}`; }
 function renderTabs() {
   return `<div class="tabs">
     <button class="tab ${view === "carpools" ? "active" : ""}" data-tab="carpools">Carpools</button>
@@ -487,12 +532,12 @@ function renderList() {
   return `
     <div class="topbar">
       <div><h1>Carpool Coordinator</h1><p class="muted tiny">Recurring rotations, swaps, and calendar sync.</p></div>
-      ${canManage() ? `<button class="btn" data-view-create>New carpool</button>` : ""}
+      ${canManage() && !loadFailed ? `<button class="btn" data-view-create>New carpool</button>` : ""}
     </div>
     ${renderMessages()}
     ${renderTabs()}
     <div class="section-head"><h2>Active carpools</h2><button class="btn btn-ghost btn-sm" data-refresh>Refresh</button></div>
-    <section class="stack">${carpools.length ? carpools.map(renderCarpoolCard).join("") : `<div class="card empty">No carpools yet.</div>`}</section>`;
+    <section class="stack">${carpools.length ? carpools.map(renderCarpoolCard).join("") : loadFailed ? "" : `<div class="card empty">No carpools yet.</div>`}</section>`;
 }
 function renderMine() {
   const mine = assignments
@@ -513,7 +558,7 @@ function renderMine() {
     <div class="topbar"><div><h1>My drives</h1></div></div>
     ${renderMessages()}
     ${renderTabs()}
-    <section class="stack">${rows.length ? rows.join("") : `<div class="card empty">You have no upcoming drives.</div>`}</section>`;
+    <section class="stack">${rows.length ? rows.join("") : loadFailed ? "" : `<div class="card empty">You have no upcoming drives.</div>`}</section>`;
 }
 function renderAssignment(a) {
   const cp = selectedCarpool();
@@ -531,7 +576,7 @@ function renderAssignment(a) {
     }
   }
   return `
-    <div class="row" data-testid="assignment-row" data-assignment-id="${esc(a.id)}" data-swap="${sw ? "open" : "none"}">
+    <div class="row" data-testid="assignment-row" data-assignment-id="${esc(a.id)}" data-swap="${sw ? "open" : "none"}" data-status="${esc(a.status)}">
       <div class="row-top">
         <div class="date-badge">${esc(fmtDay(a.date))} ${a.status !== "scheduled" ? `<span class="pill">${esc(a.status)}</span>` : ""}</div>
         <div class="actions">
@@ -539,7 +584,7 @@ function renderAssignment(a) {
             ? `<select class="inline" data-reassign="${esc(a.id)}" data-testid="reassign-driver" data-assignment-id="${esc(a.id)}"><option value="">Unassigned</option>${opts}</select>`
             : driverChip(a.driver_id)}
           ${swapUi}
-          ${canManage() && a.status === "scheduled" ? `<button class="btn btn-quiet-danger" data-skip="${esc(a.id)}">Skip</button>` : ""}
+          ${canManage() && a.status === "scheduled" ? `<button class="btn btn-quiet-danger" data-skip="${esc(a.id)}" data-testid="skip-day" data-assignment-id="${esc(a.id)}">Skip</button>` : ""}
         </div>
       </div>
       ${sw && sw.reason ? `<div class="meta tiny">“${esc(sw.reason)}” — ${esc(memberName(sw.requested_by))}</div>` : ""}
@@ -608,7 +653,7 @@ document.addEventListener("click", (event) => {
   if (t.matches("[data-back], [data-view-list]")) { selectedCarpoolId = null; view = "carpools"; clearMessages(); render(); return; }
   if (t.matches("[data-view-create]")) { view = "create"; selectedCarpoolId = null; clearMessages(); render(); return; }
   if (t.hasAttribute("data-tab")) { view = t.getAttribute("data-tab"); selectedCarpoolId = null; clearMessages(); render(); return; }
-  if (t.matches("[data-refresh]")) { refresh(); return; }
+  if (t.matches('[data-refresh], [data-testid="load-retry"]')) { refresh(); return; }
   if (t.hasAttribute("data-weekday")) { toggleWeekday(Number(t.getAttribute("data-weekday"))); return; }
   if (t.hasAttribute("data-share-carpool")) { openShare(t.getAttribute("data-share-carpool")); return; }
   if (t.hasAttribute("data-extend")) { extendSchedule(t.getAttribute("data-extend")); return; }

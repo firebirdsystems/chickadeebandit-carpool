@@ -218,6 +218,18 @@
           }
         }
       ]
+    },
+    {
+      "name": "when two adults cover the same swap request, the first one wins and the second changes nothing",
+      "members": {"asker": "adult", "first": "adult", "second": "adult"},
+      "steps": [
+        {"action": "seedRaw", "sql": "INSERT INTO app_carpool__carpools (id, name, created_by, created_at) VALUES ('cp1', 'School run', ?, ?)", "params": ["{{asker}}", "2026-01-01T00:00:00Z"]},
+        {"action": "seedRaw", "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, status, created_at, updated_at) VALUES ('a1', 'cp1', '2026-01-12', ?, 'scheduled', ?, ?)", "params": ["{{asker}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"]},
+        {"action": "seedRaw", "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, status, created_at, updated_at) VALUES ('s1', 'cp1', 'a1', ?, 'open', ?, ?)", "params": ["{{asker}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"]},
+        {"action": "db", "as": "first", "sql": "UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ? AND status = 'open' RETURNING id", "params": ["{{first}}", "2026-01-01T00:00:00Z", "s1"], "expect": {"status": 200, "rowCount": 1}},
+        {"action": "db", "as": "second", "sql": "UPDATE app_carpool__swap_requests SET status = 'accepted', resolved_by = ?, updated_at = ? WHERE id = ? AND status = 'open' RETURNING id", "params": ["{{second}}", "2026-01-01T00:00:00Z", "s1"], "expect": {"status": 200, "rowCount": 0}},
+        {"action": "db", "as": "asker", "sql": "SELECT status, resolved_by FROM app_carpool__swap_requests WHERE id = 's1'", "expect": {"status": 200, "rowCount": 1, "rowsContain": [{"status": "accepted", "resolved_by": "scn-first"}]}}
+      ]
     }
   ]
 }

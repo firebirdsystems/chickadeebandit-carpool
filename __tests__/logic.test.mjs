@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import {
   canManage, parseWeekdays, upcomingDates, rotationDriver, buildCalendarEvents, openSwap,
   driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
+  wroteOne, swapClaim, swapCancel,
   DRIVER_NAME_REFRESH_CHUNK,
 } from "../src/logic.js";
 
@@ -243,5 +244,40 @@ describe("rosterWithSelf", () => {
 
   it("is what the page uses for reassign and swap acceptance", () => {
     expect(page.match(/driverUpdate\([^)]*rosterWithSelf\(members, currentMember\)/g)).toHaveLength(2);
+  });
+});
+
+describe("wroteOne", () => {
+  it("is true only when exactly one row changed", () => {
+    expect(wroteOne({ rows: [], changed: 1 })).toBe(true);
+    expect(wroteOne({ rows: [], changed: "1" })).toBe(true);
+    expect(wroteOne({ rows: [], changed: 0 })).toBe(false);
+    expect(wroteOne({ rows: [], changed: 2 })).toBe(false);
+  });
+  it("treats an answer with no count as a write that did not land", () => {
+    expect(wroteOne({ rows: [] })).toBe(false);
+    expect(wroteOne(null)).toBe(false);
+    expect(wroteOne(undefined)).toBe(false);
+  });
+});
+
+describe("swap request writes are guarded on the request still being open", () => {
+  it("claims only an open request, for the member covering it", () => {
+    const c = swapClaim("s1", "m2", "t1");
+    expect(c.sql).toMatch(/SET status = 'accepted', resolved_by = \?/);
+    expect(c.sql).toMatch(/WHERE id = \? AND status = 'open'$/);
+    expect(c.params).toEqual(["m2", "t1", "s1"]);
+  });
+  it("cancels only an open request, so a covered one keeps its record", () => {
+    const c = swapCancel("s1", "t1");
+    expect(c.sql).toMatch(/SET status = 'cancelled'/);
+    expect(c.sql).toMatch(/WHERE id = \? AND status = 'open'$/);
+    expect(c.params).toEqual(["t1", "s1"]);
+  });
+  it("are what the page uses, and every guarded write reads its count", () => {
+    expect(page.match(/swapClaim\(/g)).toHaveLength(1);
+    expect(page.match(/swapCancel\(/g)).toHaveLength(1);
+    // reassign, accept (claim + driver), cancel, skip, archive
+    expect(page.match(/wroteOne\(await dbq\(/g)).toHaveLength(6);
   });
 });
