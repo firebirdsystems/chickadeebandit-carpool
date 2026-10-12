@@ -59,7 +59,7 @@
 
         { "action": "fault", "as": "driver", "mode": "malformed" },
         { "action": "click", "as": "driver", "selector": "[data-testid=\"skip-day\"][data-assignment-id=\"a-fault\"]" },
-        { "action": "expectText", "as": "driver", "selector": "[data-testid=\"error\"]", "text": "Couldn’t reach the hub. Try again." },
+        { "action": "expectText", "as": "driver", "selector": "[data-testid=\"error\"]", "text": "Couldn’t update the day — try again." },
         { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-fault\"][data-status=\"scheduled\"]" },
         { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"skip-day\"][data-assignment-id=\"a-fault\"]" },
 
@@ -142,6 +142,49 @@
         { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-noop\"]" },
         { "action": "click", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-noop\"]" },
         { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-noop\"][data-status=\"skipped\"]" }
+      ]
+    },
+    {
+      "name": "a second swap request for a day that already has one open is withdrawn and said so; a lone request still stands",
+      "members": { "driver": "adult" },
+      "steps": [
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__carpools (id, name, pickup_time, weekdays, driver_order, created_by, created_at, archived) VALUES ('cp-dup', ?, '15:30', ?, ?, ?, '2026-08-01T09:00:00Z', 0)",
+          "params": ["Swim Team Run", "1,3", "[]", "{{driver}}"] },
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__assignments (id, carpool_id, date, driver_id, status, created_at, updated_at) VALUES ('a-dup', 'cp-dup', date('now', '+7 day'), ?, 'scheduled', '2026-08-01T09:00:00Z', '2026-08-01T09:00:00Z')",
+          "params": ["{{driver}}"] },
+
+        { "action": "open", "as": "driver" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-dup\"][data-swap=\"none\"]" },
+
+        { "action": "seedRaw",
+          "sql": "INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, status, created_at, updated_at) VALUES ('sw-other-tab', 'cp-dup', 'a-dup', ?, 'open', '2026-08-01T10:00:00Z', '2026-08-01T10:00:00Z')",
+          "params": ["{{driver}}"] },
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"request-swap\"][data-assignment-id=\"a-dup\"]" },
+        { "action": "dialog", "as": "driver", "answer": "accept", "text": "Ask another driver to cover" },
+        { "action": "expectText", "as": "driver", "selector": "[data-testid=\"error\"]", "text": "A swap is already open for this day." },
+        { "action": "expectCount", "as": "driver", "selector": "[data-testid=\"notice\"]", "count": 0 },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-dup\"][data-swap=\"open\"]" },
+
+        { "action": "seedRaw",
+          "sql": "UPDATE app_carpool__swap_requests SET status = 'cancelled' WHERE id = 'sw-other-tab'" },
+        { "action": "reload", "as": "driver" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-dup\"][data-swap=\"none\"]" },
+
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"request-swap\"][data-assignment-id=\"a-dup\"]" },
+        { "action": "dialog", "as": "driver", "answer": "accept", "text": "Ask another driver to cover" },
+        { "action": "expectText", "as": "driver", "selector": "[data-testid=\"notice\"]", "text": "Swap requested" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-dup\"][data-swap=\"open\"]" },
+
+        { "action": "reload", "as": "driver" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "click", "as": "driver", "selector": "[data-testid=\"carpool-card\"][data-carpool-id=\"cp-dup\"]" },
+        { "action": "expectVisible", "as": "driver", "selector": "[data-testid=\"assignment-row\"][data-assignment-id=\"a-dup\"][data-swap=\"open\"]" }
       ]
     }
   ]

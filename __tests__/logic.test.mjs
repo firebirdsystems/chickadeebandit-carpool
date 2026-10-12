@@ -5,7 +5,7 @@ import { describe, it, expect } from "vitest";
 import {
   canManage, parseWeekdays, upcomingDates, rotationDriver, buildCalendarEvents, openSwap,
   driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
-  wroteOne, swapClaim, swapCancel,
+  wroteOne, swapClaim, swapCancel, swapWithdrawDuplicate,
   DRIVER_NAME_REFRESH_CHUNK,
 } from "../src/logic.js";
 
@@ -273,6 +273,13 @@ describe("swap request writes are guarded on the request still being open", () =
     expect(c.sql).toMatch(/SET status = 'cancelled'/);
     expect(c.sql).toMatch(/WHERE id = \? AND status = 'open'$/);
     expect(c.params).toEqual(["t1", "s1"]);
+  });
+  it("withdraws a new request only when another is open for the same day", () => {
+    const c = swapWithdrawDuplicate("s2", "a1", "t1");
+    expect(c.sql).toMatch(/SET status = 'cancelled'/);
+    expect(c.sql).toMatch(/WHERE id = \? AND status = 'open' AND EXISTS \(SELECT 1 FROM app_carpool__swap_requests AS other WHERE other\.assignment_id = \? AND other\.status = 'open' AND other\.id <> \?\)$/);
+    expect(c.params).toEqual(["t1", "s2", "a1", "s2"]);
+    expect(page.match(/swapWithdrawDuplicate\(/g)).toHaveLength(1);
   });
   it("are what the page uses, and every guarded write reads its count", () => {
     expect(page.match(/swapClaim\(/g)).toHaveLength(1);

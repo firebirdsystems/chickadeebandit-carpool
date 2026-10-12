@@ -90,7 +90,7 @@ import {
   canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
   buildCalendarEvents, openSwap as _openSwap,
   driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
-  wroteOne, swapClaim, swapCancel,
+  wroteOne, swapClaim, swapCancel, swapWithdrawDuplicate,
 } from "./logic.js";
 import { createShareUi, createOverlayView } from "./share.js";
 
@@ -167,9 +167,13 @@ async function dbq(sql, params = []) {
   if (!DB) return { rows: [] };
   const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
   const json = await res.json().catch(() => null);
-  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || "Couldn’t reach the hub. Try again.");
+  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || `Database request failed (${res.status})`);
   return json;
 }
+// Wording this app wrote for the reader is marked where it is thrown. A failed
+// write shows that wording, or one fixed line for the action; the hub's own
+// error text goes to the console.
+function failText(e, line) { if (!e?.forUser) console.error(e); return e?.forUser ? e.message : line; }
 function publish(type, subject_id, payload) {
   fetch(EVENTS_URL, { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ source_app_id: APP_ID, type, subject_id, payload }) }).catch(() => {});
@@ -342,7 +346,7 @@ async function createCarpool(form) {
     syncCalendar();
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = "Create carpool"; }
-    showError(e.message);
+    showError(failText(e, "Couldn’t create the carpool — try again."));
   }
 }
 
@@ -373,7 +377,7 @@ async function extendSchedule(carpoolId) {
     assignments = [...assignments, ...created];
     showNotice(`Added ${created.length} more driving days.`);
     syncCalendar();
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t add the driving days — try again.")); }
 }
 
 async function reassign(assignmentId, driverId) {
@@ -385,7 +389,7 @@ async function reassign(assignmentId, driverId) {
     clearMessages();
     render();
     syncCalendar();
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t change the driver — try again.")); }
 }
 
 async function requestSwap(assignmentId) {
@@ -400,12 +404,19 @@ async function requestSwap(assignmentId) {
     if (DB) await dbq(`INSERT INTO app_carpool__swap_requests (id, carpool_id, assignment_id, requested_by, reason, status, resolved_by, created_at, updated_at)
                        VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?)`,
       [req.id, req.carpool_id, req.assignment_id, req.requested_by, req.reason, req.created_at, req.updated_at]);
+    if (DB) {
+      // Another tab or a second tap may have raised one this page has not
+      // seen. This request withdraws itself if so; `changed` is the answer.
+      const dup = swapWithdrawDuplicate(req.id, assignmentId, nowIso());
+      const withdrawn = await dbq(dup.sql, dup.params);
+      if (wroteOne(withdrawn)) return staleWrite("A swap is already open for this day.");
+    }
     swaps = [...swaps, req];
     render();
     showNotice("Swap requested — other drivers can cover you.");
     publish("carpool.swap_requested", assignmentId, { carpool_id: a.carpool_id });
     sendHubNotification({ title: "Carpool swap needed", body: `${currentMember.name} needs coverage on ${fmtDay(a.date)}.`, url: hubAppUrl(APP_ID, { carpoolId: a.carpool_id }) }).catch(() => {});
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t request the swap — try again.")); }
 }
 
 async function acceptSwap(assignmentId) {
@@ -430,7 +441,7 @@ async function acceptSwap(assignmentId) {
         return showError("Someone else is already covering this drive.");
       }
       try {
-        if (!wroteOne(await dbq(upd.sql, upd.params))) throw new Error("The driver wasn’t changed. Try again.");
+        if (!wroteOne(await dbq(upd.sql, upd.params))) throw Object.assign(new Error("The driver wasn’t changed. Try again."), { forUser: true });
       } catch (e) {
         // The drive never changed hands, so the request goes back to open.
         await dbq("UPDATE app_carpool__swap_requests SET status = 'open', resolved_by = '', updated_at = ? WHERE id = ?", [nowIso(), req.id]).catch(() => {});
@@ -443,7 +454,7 @@ async function acceptSwap(assignmentId) {
     showNotice("You're covering this drive.");
     publish("carpool.swap_accepted", assignmentId, { carpool_id: a.carpool_id });
     if (req.requested_by) sendHubNotification({ title: "Carpool covered", body: `${currentMember.name} is covering your ${fmtDay(a.date)} drive.`, audience: [req.requested_by], url: hubAppUrl(APP_ID, { carpoolId: a.carpool_id }) }).catch(() => {});
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t cover the drive — try again.")); }
 }
 
 async function cancelSwap(assignmentId) {
@@ -456,7 +467,7 @@ async function cancelSwap(assignmentId) {
     swaps = swaps.filter(s => s.id !== req.id);
     clearMessages();
     render();
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t cancel the swap request — try again.")); }
 }
 
 async function setStatus(assignmentId, status) {
@@ -469,7 +480,7 @@ async function setStatus(assignmentId, status) {
     clearMessages();
     render();
     syncCalendar();
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t update the day — try again.")); }
 }
 
 async function archiveCarpool(carpoolId) {
@@ -484,7 +495,7 @@ async function archiveCarpool(carpoolId) {
     selectedCarpoolId = null;
     showNotice("Carpool archived.");
     syncCalendar();
-  } catch (e) { showError(e.message); }
+  } catch (e) { showError(failText(e, "Couldn’t archive the carpool — try again.")); }
 }
 
 function patchAssignment(id, patch) {

@@ -102,6 +102,21 @@ export function swapCancel(requestId, now) {
   };
 }
 
+/**
+ * The UPDATE that withdraws a request just raised when another one is open for
+ * the same day (a second tab, a second tap). The hub refuses INSERT … SELECT on
+ * this table, so the guard runs straight after the INSERT instead: statements
+ * are applied one at a time, so of two requests raised at once the first to
+ * run this finds the other and withdraws, and the second then stands alone.
+ * `changed` 1 means this request was the duplicate.
+ */
+export function swapWithdrawDuplicate(requestId, assignmentId, now) {
+  return {
+    sql: "UPDATE app_carpool__swap_requests SET status = 'cancelled', updated_at = ? WHERE id = ? AND status = 'open' AND EXISTS (SELECT 1 FROM app_carpool__swap_requests AS other WHERE other.assignment_id = ? AND other.status = 'open' AND other.id <> ?)",
+    params: [now, requestId, assignmentId, requestId],
+  };
+}
+
 // ── driver_name snapshot ──
 // The public carpool calendar (manifest.shareable.carpool) titles each day with
 // its driver, and a share link reads no member roster, so the driver's display
