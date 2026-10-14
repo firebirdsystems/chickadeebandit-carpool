@@ -84,7 +84,7 @@
 <script type="module">
 import {
   esc, initial, memberColor, hubConfirm, sendHubNotification, hubAppUrl,
-  createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS, glyph,
+  createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS, glyph, hubToday,
 } from "/hub-sdk.js";
 import {
   canManage as _canManage, parseWeekdays, upcomingDates, rotationDriver,
@@ -92,7 +92,7 @@ import {
   driverNameFor, assignmentInsert, driverUpdate, driverNameRefreshes, rosterWithSelf,
   wroteOne, swapClaim, swapCancel, swapWithdrawDuplicate,
 } from "./logic.js";
-import { createShareUi, createOverlayView } from "./share.js";
+import { createShareUi, createOverlayView } from "/hub-share-ui.js";
 
 const CONTEXT    = window.__CONTEXT_URL    ?? "";
 const DB         = window.__DB_URL         ?? "";
@@ -152,7 +152,9 @@ function openSwap(assignmentId) { return _openSwap(swaps, assignmentId); }
 
 const nowIso = () => new Date().toISOString();
 const uid = (p) => `${p}-${crypto.randomUUID()}`;
-const today = () => new Date().toLocaleDateString("en-CA");
+// The HOUSEHOLD's calendar day, not the device's: the dates stored, exported
+// and compared here are on the household calendar, as the hub's own surfaces are.
+const today = () => hubToday();
 function memberName(id) { return memberMap.get(id)?.name ?? "Unassigned"; }
 function adultMembers() { return members.filter(m => m.role === "adult"); }
 function fmtDay(v) {
