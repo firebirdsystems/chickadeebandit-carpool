@@ -1,7 +1,7 @@
 -- A recurring carpool rotation (e.g. "Soccer Practice", "Morning School Run").
 -- Everyone reads the schedule; only adults create and manage rotations.
 CREATE TABLE IF NOT EXISTS app_carpool__carpools (
-  id              TEXT PRIMARY KEY,
+  id              TEXT NOT NULL PRIMARY KEY,
   name            TEXT NOT NULL,
   description     TEXT NOT NULL DEFAULT '',
   location        TEXT NOT NULL DEFAULT '',
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS app_carpool__carpools (
 
 -- One concrete driving day. Generated from the rotation, editable by adults.
 CREATE TABLE IF NOT EXISTS app_carpool__assignments (
-  id          TEXT PRIMARY KEY,
+  id          TEXT NOT NULL PRIMARY KEY,
   carpool_id  TEXT NOT NULL,
   date        TEXT NOT NULL,
   driver_id   TEXT NOT NULL DEFAULT '',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS app_carpool__assignments (
 
 -- A driver asking to be covered on a given day; another adult accepts it.
 CREATE TABLE IF NOT EXISTS app_carpool__swap_requests (
-  id            TEXT PRIMARY KEY,
+  id            TEXT NOT NULL PRIMARY KEY,
   carpool_id    TEXT NOT NULL,
   assignment_id TEXT NOT NULL,
   requested_by  TEXT NOT NULL,
